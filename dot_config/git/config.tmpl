@@ -1,0 +1,25 @@
+# vim: syntax=gitconfig
+# This is a chezmoi template - generates different configs based on machine class
+
+[user]
+  name       = {{ .name }}
+  email      = {{ .email }}
+  signingkey = {{ .signingkey }}
+
+[include]
+    path = ~/.config/git/config.local
+
+{{ if eq .class "Work" }}
+[include]
+    path = ~/.config/git/themes.gitconfig
+
+[commit]
+	gpgsign = true
+[tag]
+	gpgSign = true
+[credential]
+	helper =
+	helper = /usr/local/share/gcm-core/git-credential-manager
+[credential "https://dev.azure.com"]
+	useHttpPath = true
+{{ end }}

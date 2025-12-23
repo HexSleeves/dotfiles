@@ -1,0 +1,178 @@
+#!/usr/bin/env bash
+# Bootstrap Package Installation
+# Installs essential development tools and applications
+
+set -euo pipefail
+
+# Get the current class from chezmoi data
+CLASS="{{ .class }}"
+
+echo "📦 Bootstrapping packages for '${CLASS}' profile..."
+
+# Helper functions for better error handling
+install_if_missing() {
+    local command_name="$1"
+    local install_command="$2"
+    local description="$3"
+
+    if ! command -v "$command_name" >/dev/null 2>&1; then
+        echo "Installing ${description}..."
+        if eval "$install_command"; then
+            echo "✅ Successfully installed ${description}"
+        else
+            echo "❌ Failed to install ${description}"
+            return 1
+        fi
+    else
+        echo "✅ ${description} already installed"
+    fi
+}
+
+install_homebrew_if_missing() {
+    if ! command -v brew >/dev/null 2>&1; then
+        echo "Installing Homebrew..."
+        # Use official Homebrew installer
+        if /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
+            # Add Homebrew to PATH for current session
+            if [[ -f "/opt/homebrew/bin/brew" ]]; then
+                eval "$(/opt/homebrew/bin/brew shellenv)"
+            elif [[ -f "/usr/local/bin/brew" ]]; then
+                eval "$(/usr/local/bin/brew shellenv)"
+            fi
+            echo "✅ Successfully installed Homebrew"
+        else
+            echo "❌ Failed to install Homebrew"
+            return 1
+        fi
+    else
+        echo "✅ Homebrew already installed"
+    fi
+}
+
+{{ if eq .chezmoi.os "darwin" -}}
+
+# macOS-specific setup
+echo "🍎 Detected macOS"
+
+# macOS System Updates (skip for Work machines)
+if [[ "$CLASS" != "Work" ]]; then
+    echo "Checking for macOS system updates..."
+    if sudo softwareupdate -i -a 2>/dev/null; then
+        echo "✅ System updates completed"
+    else
+        echo "⚠️  System updates failed or no updates available"
+    fi
+
+    # Install Rosetta for Apple Silicon Macs
+    if [[ $(uname -m) == 'arm64' ]]; then
+        echo "Installing Rosetta for Apple Silicon..."
+        if sudo softwareupdate --install-rosetta --agree-to-license 2>/dev/null; then
+            echo "✅ Rosetta installed successfully"
+        else
+            echo "⚠️  Rosetta installation failed or already installed"
+        fi
+    fi
+fi
+
+# Install Xcode Command Line Tools
+if ! command -v git >/dev/null 2>&1; then
+    echo "Installing Xcode Command Line Tools..."
+    xcode-select --install
+    echo "⚠️  Xcode Command Line Tools installation initiated. Please complete the installation and re-run bootstrap."
+    exit 1
+else
+    echo "✅ Git (Xcode Command Line Tools) already installed"
+fi
+
+# Install Homebrew
+install_homebrew_if_missing
+
+# Install Brewfile packages if it exists
+if [[ -f "{{ .chezmoi.homeDir }}/.local/share/chezmoi/Brewfile" ]]; then
+    echo "📦 Installing packages from Brewfile..."
+    brew tap homebrew/bundle
+    if brew bundle install --file="{{ .chezmoi.homeDir }}/.local/share/chezmoi/Brewfile"; then
+        echo "✅ Brewfile installation successful"
+    else
+        echo "⚠️  Some Brewfile packages failed to install"
+    fi
+fi
+
+{{ else if eq .chezmoi.os "linux" -}}
+
+# Linux-specific setup
+echo "🐧 Detected Linux"
+
+# Install common packages based on distro
+if command -v apt-get >/dev/null 2>&1; then
+    echo "Installing packages with apt..."
+    sudo apt-get update
+    sudo apt-get install -y git curl build-essential
+elif command -v yum >/dev/null 2>&1; then
+    echo "Installing packages with yum..."
+    sudo yum install -y git curl
+elif command -v pacman >/dev/null 2>&1; then
+    echo "Installing packages with pacman..."
+    sudo pacman -S --noconfirm git curl base-devel
+fi
+
+{{ end -}}
+
+# Install mise (version manager)
+install_if_missing "mise" "curl https://mise.run | sh" "mise (version manager)"
+
+# Source mise for current session
+if [[ -f "{{ .chezmoi.homeDir }}/.local/bin/mise" ]]; then
+    export PATH="{{ .chezmoi.homeDir }}/.local/bin:${PATH}"
+elif [[ -f "{{ .chezmoi.homeDir }}/.cargo/bin/mise" ]]; then
+    export PATH="{{ .chezmoi.homeDir }}/.cargo/bin:${PATH}"
+fi
+
+# Install Rust (prefer rustup)
+echo "Installing/updating Rust..."
+if ! command -v rustup >/dev/null 2>&1; then
+    echo "Installing Rust via rustup..."
+    if curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; then
+        echo "✅ Rust installed via rustup"
+        source "{{ .chezmoi.homeDir }}/.cargo/env"
+    else
+        echo "⚠️  Rustup installation failed"
+    fi
+else
+    echo "✅ Rust (rustup) already installed"
+    [[ -f "{{ .chezmoi.homeDir }}/.cargo/env" ]] && source "{{ .chezmoi.homeDir }}/.cargo/env"
+    rustup update >/dev/null 2>&1 || true
+fi
+
+# Install cargo-binstall for faster cargo installs
+if command -v cargo >/dev/null 2>&1; then
+    if ! command -v cargo-binstall >/dev/null 2>&1; then
+        echo "Installing cargo-binstall..."
+        curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+    fi
+fi
+
+{{ if eq .chezmoi.os "darwin" -}}
+
+# Install FZF with shell integrations
+if [[ ! -f "{{ .chezmoi.homeDir }}/.fzf.zsh" ]]; then
+    echo "Setting up FZF shell integrations..."
+    if brew --prefix fzf >/dev/null 2>&1; then
+        FZF_PATH=$(brew --prefix fzf)
+        if "${FZF_PATH}/install" --no-update-rc --completion --key-bindings; then
+            echo "✅ FZF shell integrations installed"
+        else
+            echo "⚠️  FZF shell integration setup failed"
+        fi
+    fi
+else
+    echo "✅ FZF shell integrations already configured"
+fi
+
+# Update Homebrew and cleanup
+echo "Updating Homebrew and cleaning up..."
+brew update && brew upgrade && brew cleanup
+
+{{ end -}}
+
+echo "🎉 Core package installation completed!"

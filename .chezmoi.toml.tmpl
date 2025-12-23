@@ -1,0 +1,35 @@
+{{/* work around unreliable hostname on darwin */}}
+{{- $hostname := .chezmoi.hostname -}}
+{{- if eq .chezmoi.os "darwin" -}}
+{{-   $hostname := output "scutil" "--get" "LocalHostName" | trim -}}
+{{- end -}}
+
+{{- $class := promptStringOnce . "machine_class" "Machine class (Personal/Work)" -}}
+{{- $passphrase := keyring "chezmoi" "gpg-passphrase" -}}
+
+{{- $work := eq $class "Work" -}}
+
+
+{{- $email := "lecoqjacob@gmail.com" -}}
+{{- if $work -}}
+{{-   $email = "jacob.lecoq.ext@bayer.com" -}}
+{{- end -}}
+
+encryption = "gpg"
+
+[data]
+    name = "Jacob LeCoq"
+    email = {{ $email | quote }}
+    class = {{ $class | quote }}
+    signingkey = "75514B13ECEAA46F3FBADF5333EC7B08ED47E6E3"
+
+[gpg]
+    symmetric = true
+    recipient = "33EC7B08ED47E6E3"
+    args = ["--batch", "--passphrase", {{ $passphrase | quote }}, "--no-symkey-cache"]
+
+[diff]
+    exclude = ["scripts"]
+
+[status]
+    exclude = ["scripts"]

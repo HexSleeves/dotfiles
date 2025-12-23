@@ -1,0 +1,37 @@
+#!/bin/sh
+
+# Setup GPG Keys
+# Idempotent script to setup GPG
+
+echo "🔐 Setting up GPG keys..."
+
+# Ensure GPG is installed
+if ! command -v gpg >/dev/null 2>&1; then
+    echo "Installing GPG..."
+    if command -v brew >/dev/null 2>&1; then
+        brew install gnupg
+    elif command -v apt-get >/dev/null 2>&1; then
+        sudo apt-get install -y gnupg
+    elif command -v pacman >/dev/null 2>&1; then
+        sudo pacman -S --noconfirm gnupg
+    else
+        echo "❌ Cannot install GPG - no package manager found."
+        exit 1
+    fi
+fi
+
+# Ensure directories exist
+mkdir -p ~/.local/share/gnupg/.exported-keyring
+
+# Import keys if they exist
+if ls ~/.local/share/gnupg/.exported-keyring/*.asc >/dev/null 2>&1; then
+    echo "Importing keys..."
+    gpg --import ~/.local/share/gnupg/.exported-keyring/*.asc 2>/dev/null || true
+
+    if [ -f ~/.local/share/gnupg/.exported-keyring/ownertrust.txt ]; then
+        gpg --import-ownertrust ~/.local/share/gnupg/.exported-keyring/ownertrust.txt 2>/dev/null || true
+    fi
+    echo "✅ GPG keys imported"
+else
+    echo "ℹ️  No exported keys found to import."
+fi

@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Machine Class Configuration Script
+# Ensures that a machine class is set (Personal/Work)
+# This is a template that runs once when chezmoi apply is executed
+
+set -euo pipefail
+
+# Get the current class from chezmoi data
+CURRENT_CLASS="{{ .class }}"
+
+echo "🔧 Machine class: ${CURRENT_CLASS}"
+
+case $CURRENT_CLASS in
+    "Personal")
+        echo "  - System updates will be installed automatically"
+        echo "  - Full application suite will be installed"
+        echo "  - Personal dotfiles and configurations will be applied"
+        ;;
+    "Work")
+        echo "  - System updates will be skipped (managed by IT)"
+        echo "  - Work-appropriate applications will be installed"
+        echo "  - Work-specific configurations will be applied"
+        ;;
+    *)
+        echo "⚠️  Unknown machine class: ${CURRENT_CLASS}"
+        ;;
+esac

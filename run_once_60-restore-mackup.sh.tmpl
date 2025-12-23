@@ -1,0 +1,38 @@
+{{ if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+
+# Mackup Configuration Restore
+# Restores application settings and configurations from cloud storage
+
+set -euo pipefail
+
+# Check if mackup is installed
+if ! command -v mackup >/dev/null 2>&1; then
+    echo "⚠️  Mackup not installed. Installing via Homebrew..."
+    if command -v brew >/dev/null 2>&1; then
+        brew install mackup
+    else
+        echo "❌ Homebrew not available. Skipping mackup setup."
+        exit 0
+    fi
+fi
+
+# Check if mackup configuration exists
+if [[ ! -f "$HOME/.mackup.cfg" ]]; then
+    echo "📋 Creating basic mackup configuration..."
+    cat >"$HOME/.mackup.cfg" <<'EOF'
+[storage]
+engine = icloud
+
+[applications_to_ignore]
+# Add applications you don't want to sync
+# ssh
+EOF
+    echo "✅ Created ~/.mackup.cfg"
+    echo "💡 Edit ~/.mackup.cfg to customize sync settings"
+fi
+
+# Note: Actual restore requires user interaction
+# Run manually: mackup restore
+echo "ℹ️  Mackup is configured. Run 'mackup restore' manually to restore configurations."
+{{ end -}}

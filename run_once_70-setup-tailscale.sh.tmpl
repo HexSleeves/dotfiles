@@ -1,0 +1,35 @@
+{{ if eq .chezmoi.os "linux" -}}
+#!/bin/sh
+
+# Setup Tailscale on Linux
+# Enables Tailscale with SSH and exit node support
+
+echo "Enabling Tailscale..."
+if command -v systemctl >/dev/null 2>&1; then
+    sudo systemctl enable tailscaled
+    sudo systemctl start tailscaled
+else
+    echo "❌ systemctl not found. Cannot enable tailscaled service."
+    exit 1
+fi
+
+sleep 1
+echo "Starting Tailscale..."
+sudo tailscale up --ssh --advertise-exit-node
+
+address=$(tailscale ip -4)
+echo "Tailscale IPv4 address: $address"
+
+NETDEV=$(ip -o route get 8.8.8.8 | cut -f 5 -d " ")
+if command -v ethtool >/dev/null 2>&1; then
+    sudo ethtool -K $NETDEV rx-udp-gro-forwarding on rx-gro-list off
+fi
+
+echo "Configuring Tailscale ipv4..."
+
+echo 'net.ipv4.ip_forward = 1' | sudo tee -a /etc/sysctl.d/99-tailscale.conf
+echo 'net.ipv6.conf.all.forwarding = 1' | sudo tee -a /etc/sysctl.d/99-tailscale.conf
+sudo sysctl -p /etc/sysctl.d/99-tailscale.conf
+
+echo "✅ Tailscale setup complete!"
+{{ end -}}

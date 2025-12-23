@@ -1,0 +1,6 @@
+{{ if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+
+# Allow SSH in macOS firewall
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --add "$(which ssh)"
+{{ end -}}

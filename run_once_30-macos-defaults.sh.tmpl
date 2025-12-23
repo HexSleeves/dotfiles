@@ -1,0 +1,207 @@
+#!/usr/bin/env bash
+# macOS defaults configuration
+# Inspired from https://github.com/mathiasbynens/dotfiles/blob/master/.macos
+
+{{ if eq .chezmoi.os "darwin" -}}
+
+set -euo pipefail
+
+echo "🍎 Applying macOS defaults..."
+
+###############################################################################
+# General UI/UX                                                               #
+###############################################################################
+
+# Enable the sound effects on boot
+sudo nvram StartupMute=%00
+
+# Prevent startup when opening the lid
+sudo nvram BootPreference=%01
+
+# Disable 'Wake for network access' and 'Power Nap'
+sudo pmset -a womp 0
+sudo pmset -a powernap 0
+
+# Set Login Window Text
+sudo defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText 'If you found this computer, please call +1 337 552 8554 or email lecoqjacob@gmail.com'
+
+# System - Sunday is the first day of the week
+defaults write NSGlobalDomain AppleFirstWeekday -dict 'gregorian' 1
+
+# System - Allow 'locate' command
+sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.locate.plist >/dev/null 2>&1 || true
+
+# Expand save panel by default
+defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
+defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 -bool true
+
+# Expand print panel by default
+defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true
+defaults write NSGlobalDomain PMPrintingExpandedStateForPrint2 -bool true
+
+# Set sidebar icon size to medium
+defaults write NSGlobalDomain NSTableViewDefaultSizeMode -int 2
+
+# Save to disk (not to iCloud) by default
+defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
+
+# Automatically quit printer app once the print jobs complete
+defaults write com.apple.print.PrintingPrefs "Quit When Finished" -bool true
+
+# Disable automatic capitalization
+defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
+
+###############################################################################
+# Trackpad, mouse, keyboard, Bluetooth accessories, and input                 #
+###############################################################################
+
+# Disable "natural" (Lion-style) scrolling
+defaults write NSGlobalDomain com.apple.swipescrolldirection -bool true
+
+# Increase sound quality for Bluetooth headphones/headsets
+defaults write com.apple.BluetoothAudioAgent "Apple Bitpool Min (editable)" -int 40
+
+# Set language and text formats
+defaults write NSGlobalDomain AppleLanguages -array "en-US" "fr-CH" "pt-CH"
+defaults write NSGlobalDomain AppleLocale -string "en_001@currency=chf;rg=chzzzz"
+defaults write NSGlobalDomain AppleMeasurementUnits -string "Centimeters"
+defaults write NSGlobalDomain AppleMetricUnits -bool true
+
+# Enable full keyboard access for all controls
+defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
+
+# Set a fast keyboard repeat rate
+defaults write -g KeyRepeat -int 2
+defaults write -g InitialKeyRepeat -int 12
+
+# Disable press and hold for special characters
+defaults write -g ApplePressAndHoldEnabled -bool false
+
+# Disable auto-correct
+defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
+
+# Show language menu in the top right corner of the boot screen
+sudo defaults write /Library/Preferences/com.apple.loginwindow showInputMenu -bool true
+
+###############################################################################
+# Energy saving                                                               #
+###############################################################################
+
+# Sleep the display after 5 minutes
+sudo pmset -a displaysleep 5
+
+# Set machine sleep to 10 minutes on battery
+sudo pmset -b sleep 10
+
+###############################################################################
+# Screen                                                                      #
+###############################################################################
+
+defaults write com.apple.finder AppleShowAllFiles true
+
+# Require password immediately after sleep or screen saver begins
+defaults write com.apple.screensaver askForPassword -int 1
+defaults write com.apple.screensaver askForPasswordDelay -int 0
+defaults write com.apple.screensaver idleTime 180
+
+# Save screenshots to the desktop
+defaults write com.apple.screencapture location -string "${HOME}/Desktop"
+
+# Save screenshots in PNG format
+defaults write com.apple.screencapture type -string "png"
+
+# Disable font smoothing
+defaults -currentHost write -globalDomain AppleFontSmoothing -int 0
+
+###############################################################################
+# Finder                                                                      #
+###############################################################################
+
+# Finder: allow quitting via ⌘ + Q
+defaults write com.apple.finder QuitMenuItem -bool true
+
+# Set Desktop as the default location for new Finder windows
+defaults write com.apple.finder NewWindowTarget -string "PfDe"
+defaults write com.apple.finder NewWindowTargetPath -string "file://${HOME}/Desktop/"
+
+# Finder: show path bar
+defaults write com.apple.finder ShowPathbar -bool true
+
+# Keep folders on top when sorting by name
+defaults write com.apple.finder _FXSortFoldersFirst -bool true
+
+# Display full POSIX path as Finder window title
+defaults write com.apple.finder _FXShowPosixPathInTitle -bool true
+
+# Disable the warning when changing a file extension
+defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
+
+# Avoid creating .DS_Store files on network or USB volumes
+defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
+
+# Automatically open a new Finder window when a volume is mounted
+defaults write com.apple.frameworks.diskimages auto-open-ro-root -bool true
+defaults write com.apple.frameworks.diskimages auto-open-rw-root -bool true
+defaults write com.apple.finder OpenWindowForNewRemovableDisk -bool true
+
+# Use list view in all Finder windows by default
+defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
+
+# Allow text selection in Quick Look
+defaults write com.apple.finder QLEnableTextSelection -bool true
+
+# Set current folder as default search scope
+defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
+
+# Empty Trash securely by default
+defaults write com.apple.finder EmptyTrashSecurely -bool true
+
+###############################################################################
+# Dock, Dashboard, and hot corners                                            #
+###############################################################################
+
+# Automatically hide and show the Dock
+defaults write com.apple.dock autohide -bool true
+
+###############################################################################
+# iTerm2                                                                      #
+###############################################################################
+
+# Disable warning when quitting
+defaults write com.googlecode.iterm2 PromptOnQuit -bool false
+
+# Show tab bar in FullScreen
+defaults write com.googlecode.iterm2 ShowFullScreenTabBar -bool true
+
+###############################################################################
+# Fork defaults                                                               #
+###############################################################################
+
+mkdir -p "${HOME}/Developer"
+defaults write com.DanPristupov.Fork defaultSourceFolder -string "${HOME}/Developer"
+defaults write com.DanPristupov.Fork pageGuideLinePosition -int 72
+defaults write com.DanPristupov.Fork useMonospaceInCommitDescription -bool true
+
+###############################################################################
+# VS Code defaults                                                            #
+###############################################################################
+
+defaults write com.microsoft.VSCode ApplePressAndHoldEnabled -bool false
+
+###############################################################################
+# Disable Apple Music                                                         #
+###############################################################################
+
+launchctl unload -w /System/Library/LaunchAgents/com.apple.rcd.plist 2>/dev/null || true
+
+# reset the preferences cache
+killall cfprefsd 2>/dev/null || true
+
+echo "✅ macOS defaults applied"
+
+{{ else -}}
+
+echo "⏭️  macOS defaults skipped (not on macOS)"
+
+{{ end -}}

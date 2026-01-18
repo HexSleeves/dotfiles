@@ -1,4 +1,4 @@
-{{ if eq .chezmoi.os "darwin" -}}
+{{- if and (eq .chezmoi.os "darwin") (not (index . "headless" | default false)) -}}
 #!/usr/bin/env bash
 
 # Mackup Configuration Restore
@@ -35,4 +35,4 @@ fi
 # Note: Actual restore requires user interaction
 # Run manually: mackup restore
 echo "ℹ️  Mackup is configured. Run 'mackup restore' manually to restore configurations."
-{{ end -}}
+{{- end -}}

@@ -1,4 +1,4 @@
-{{ if eq .chezmoi.os "linux" -}}
+{{- if eq .chezmoi.os "linux" -}}
 #!/bin/sh
 
 # Setup Tailscale on Linux
@@ -32,4 +32,43 @@ echo 'net.ipv6.conf.all.forwarding = 1' | sudo tee -a /etc/sysctl.d/99-tailscale
 sudo sysctl -p /etc/sysctl.d/99-tailscale.conf
 
 echo "✅ Tailscale setup complete!"
-{{ end -}}
+{{- else if eq .chezmoi.os "darwin" -}}
+#!/bin/sh
+
+# Setup Tailscale on macOS
+# Installs via Homebrew and provides setup instructions
+
+echo "Setting up Tailscale on macOS..."
+
+# Check if tailscale is installed
+if ! command -v tailscale >/dev/null 2>&1; then
+    echo "Tailscale CLI not found. Installing via Homebrew..."
+    if command -v brew >/dev/null 2>&1; then
+        # Install the cask (GUI app with CLI)
+        brew install --cask tailscale
+    else
+        echo "Homebrew not found. Please install Tailscale manually:"
+        echo "   https://tailscale.com/download/mac"
+        exit 1
+    fi
+fi
+
+# Check if Tailscale app is running
+if ! pgrep -x "Tailscale" >/dev/null 2>&1; then
+    echo "Opening Tailscale app..."
+    open -a Tailscale
+    echo ""
+    echo "Please complete the following steps in the Tailscale menu bar app:"
+    echo "  1. Click the Tailscale icon in the menu bar"
+    echo "  2. Click 'Log in' and authenticate with your account"
+    echo ""
+fi
+
+echo "Once logged in, you can enable SSH access with:"
+echo "  tailscale up --ssh"
+echo ""
+echo "To advertise as an exit node:"
+echo "  tailscale up --ssh --advertise-exit-node"
+echo ""
+echo "Tailscale setup complete!"
+{{- end -}}

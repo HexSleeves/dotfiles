@@ -1,0 +1,54 @@
+#!/bin/bash
+{{- if eq .chezmoi.os "darwin" }}
+
+# Install Bitwarden shell functions to zsh conf.d (macOS)
+# Hash: {{ include "dot_config/dotfiles/bitwarden.zsh" | sha256sum }}
+
+set -euo pipefail
+
+SOURCE_FILE="$HOME/.config/dotfiles/bitwarden.zsh"
+CONF_DIR="$HOME/.config/zsh/conf.d"
+TARGET_FILE="$CONF_DIR/bitwarden.zsh"
+
+# Create conf.d if it doesn't exist
+mkdir -p "$CONF_DIR"
+
+# Check if source file exists
+if [[ ! -f "$SOURCE_FILE" ]]; then
+    echo "Source file not found: $SOURCE_FILE"
+    echo "Run 'chezmoi apply' first to deploy dotfiles."
+    exit 1
+fi
+
+echo "Installing Bitwarden shell functions to $TARGET_FILE..."
+
+cp "$SOURCE_FILE" "$TARGET_FILE"
+
+echo "Bitwarden shell functions installed."
+{{- else if eq .chezmoi.os "linux" }}
+
+# Install Bitwarden shell functions to zsh conf.d (Linux)
+# Hash: {{ include "dot_config/dotfiles/bitwarden-linux.zsh" | sha256sum }}
+
+set -euo pipefail
+
+SOURCE_FILE="$HOME/.config/dotfiles/bitwarden-linux.zsh"
+CONF_DIR="$HOME/.config/zsh/conf.d"
+TARGET_FILE="$CONF_DIR/bitwarden.zsh"
+
+# Create conf.d if it doesn't exist
+mkdir -p "$CONF_DIR"
+
+# Check if source file exists
+if [[ ! -f "$SOURCE_FILE" ]]; then
+    echo "Source file not found: $SOURCE_FILE"
+    echo "Run 'chezmoi apply' first to deploy dotfiles."
+    exit 1
+fi
+
+echo "Installing Bitwarden shell functions to $TARGET_FILE..."
+
+cp "$SOURCE_FILE" "$TARGET_FILE"
+
+echo "Bitwarden shell functions installed."
+{{- end }}

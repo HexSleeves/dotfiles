@@ -1,0 +1,193 @@
+# --------------------
+# Bitwarden CLI recipes
+# --------------------
+set quiet
+set dotenv-load := false
+set export := true
+
+justfile := justfile_directory() + "/.justfiles/bitwarden.justfile"
+
+# list all available recipes
+[private]
+@default:
+    just --justfile {{ "{{" }} justfile {{ "}}" }} --list
+
+# format this justfile
+[private]
+@fmt:
+    just --justfile {{ "{{" }} justfile {{ "}}" }} --fmt
+
+# Setup Bitwarden API credentials
+[group("setup")]
+[script("bash")]
+setup:
+    echo "Bitwarden API Key Setup"
+    echo "======================="
+    echo ""
+    echo "Get your API key from: https://vault.bitwarden.com/#/settings/security/security-keys"
+    echo ""
+    read -r -p "Enter your Bitwarden Client ID: " client_id
+    read -rs -p "Enter your Bitwarden Client Secret: " client_secret
+    echo ""
+{{- if eq .chezmoi.os "darwin" }}
+    security delete-generic-password -a "bitwarden" -s "BW_CLIENTID" 2>/dev/null || true
+    security add-generic-password -a "bitwarden" -s "BW_CLIENTID" -w "$client_id"
+    security delete-generic-password -a "bitwarden" -s "BW_CLIENTSECRET" 2>/dev/null || true
+    security add-generic-password -a "bitwarden" -s "BW_CLIENTSECRET" -w "$client_secret"
+    echo "API credentials stored in keychain."
+{{- else if eq .chezmoi.os "linux" }}
+    echo "$client_id" | pass insert -f "bitwarden/BW_CLIENTID"
+    echo "$client_secret" | pass insert -f "bitwarden/BW_CLIENTSECRET"
+    echo "API credentials stored in pass."
+{{- end }}
+
+# Login to Bitwarden using API key
+[group("auth")]
+[script("bash")]
+login:
+    set -euo pipefail
+{{- if eq .chezmoi.os "darwin" }}
+    CLIENT_ID=$(security find-generic-password -a "bitwarden" -s "BW_CLIENTID" -w 2>/dev/null || echo "")
+    CLIENT_SECRET=$(security find-generic-password -a "bitwarden" -s "BW_CLIENTSECRET" -w 2>/dev/null || echo "")
+{{- else if eq .chezmoi.os "linux" }}
+    CLIENT_ID=$(pass show "bitwarden/BW_CLIENTID" 2>/dev/null || echo "")
+    CLIENT_SECRET=$(pass show "bitwarden/BW_CLIENTSECRET" 2>/dev/null || echo "")
+{{- end }}
+    if [[ -z "$CLIENT_ID" ]] || [[ -z "$CLIENT_SECRET" ]]; then
+        echo "API credentials not found. Run 'just bw setup' first."
+        exit 1
+    fi
+    export BW_CLIENTID="$CLIENT_ID"
+    export BW_CLIENTSECRET="$CLIENT_SECRET"
+    STATUS=$(bw status 2>/dev/null | jq -r '.status' 2>/dev/null || echo "unauthenticated")
+    if [[ "$STATUS" == "unauthenticated" ]]; then
+        echo "Logging in to Bitwarden..."
+        bw login --apikey
+    else
+        echo "Already logged in. Status: $STATUS"
+    fi
+
+# Unlock Bitwarden vault and store session
+[group("auth")]
+[script("bash")]
+unlock:
+    set -euo pipefail
+{{- if eq .chezmoi.os "darwin" }}
+    CLIENT_ID=$(security find-generic-password -a "bitwarden" -s "BW_CLIENTID" -w 2>/dev/null || echo "")
+    CLIENT_SECRET=$(security find-generic-password -a "bitwarden" -s "BW_CLIENTSECRET" -w 2>/dev/null || echo "")
+{{- else if eq .chezmoi.os "linux" }}
+    CLIENT_ID=$(pass show "bitwarden/BW_CLIENTID" 2>/dev/null || echo "")
+    CLIENT_SECRET=$(pass show "bitwarden/BW_CLIENTSECRET" 2>/dev/null || echo "")
+{{- end }}
+    if [[ -n "$CLIENT_ID" ]] && [[ -n "$CLIENT_SECRET" ]]; then
+        export BW_CLIENTID="$CLIENT_ID"
+        export BW_CLIENTSECRET="$CLIENT_SECRET"
+    fi
+    STATUS=$(bw status 2>/dev/null | jq -r '.status' 2>/dev/null || echo "unauthenticated")
+    if [[ "$STATUS" == "unauthenticated" ]]; then
+        echo "Not logged in. Run 'just bw login' first."
+        exit 1
+    fi
+    if [[ "$STATUS" == "unlocked" ]]; then
+        echo "Vault already unlocked."
+        exit 0
+    fi
+    echo "Unlocking Bitwarden vault..."
+    SESSION=$(bw unlock --raw)
+    if [[ -n "$SESSION" ]]; then
+{{- if eq .chezmoi.os "darwin" }}
+        security delete-generic-password -a "bitwarden" -s "BW_SESSION" 2>/dev/null || true
+        security add-generic-password -a "bitwarden" -s "BW_SESSION" -w "$SESSION"
+        echo "Vault unlocked. Session stored in keychain."
+{{- else if eq .chezmoi.os "linux" }}
+        echo "$SESSION" | pass insert -f "bitwarden/BW_SESSION"
+        echo "Vault unlocked. Session stored in pass."
+{{- end }}
+        export BW_SESSION="$SESSION"
+        bw sync >/dev/null 2>&1 && echo "Vault synced."
+    fi
+
+# Lock Bitwarden vault
+[group("auth")]
+[script("bash")]
+lock:
+    bw lock >/dev/null 2>&1
+{{- if eq .chezmoi.os "darwin" }}
+    security delete-generic-password -a "bitwarden" -s "BW_SESSION" 2>/dev/null || true
+{{- else if eq .chezmoi.os "linux" }}
+    pass rm -f "bitwarden/BW_SESSION" 2>/dev/null || true
+{{- end }}
+    echo "Bitwarden vault locked."
+
+# Show Bitwarden status
+[group("info")]
+[script("bash")]
+status:
+    echo "Bitwarden Status"
+    echo "================"
+{{- if eq .chezmoi.os "darwin" }}
+    CLIENT_ID=$(security find-generic-password -a "bitwarden" -s "BW_CLIENTID" -w 2>/dev/null || echo "")
+    SESSION=$(security find-generic-password -a "bitwarden" -s "BW_SESSION" -w 2>/dev/null || echo "")
+{{- else if eq .chezmoi.os "linux" }}
+    CLIENT_ID=$(pass show "bitwarden/BW_CLIENTID" 2>/dev/null || echo "")
+    SESSION=$(pass show "bitwarden/BW_SESSION" 2>/dev/null || echo "")
+{{- end }}
+    if [[ -n "$CLIENT_ID" ]]; then
+        echo "API Key:     Configured"
+    else
+        echo "API Key:     Not configured"
+    fi
+    if [[ -n "$SESSION" ]]; then
+{{- if eq .chezmoi.os "darwin" }}
+        echo "Session:     Stored in keychain"
+{{- else if eq .chezmoi.os "linux" }}
+        echo "Session:     Stored in pass"
+{{- end }}
+    else
+        echo "Session:     Not stored"
+    fi
+    echo ""
+    bw status | jq '.'
+
+# Sync Bitwarden vault
+[group("vault")]
+[script("bash")]
+sync:
+{{- if eq .chezmoi.os "darwin" }}
+    SESSION=$(security find-generic-password -a "bitwarden" -s "BW_SESSION" -w 2>/dev/null || echo "")
+{{- else if eq .chezmoi.os "linux" }}
+    SESSION=$(pass show "bitwarden/BW_SESSION" 2>/dev/null || echo "")
+{{- end }}
+    if [[ -n "$SESSION" ]]; then
+        export BW_SESSION="$SESSION"
+    fi
+    bw sync
+    echo "Vault synced."
+
+# Search for items in vault
+[group("vault")]
+[script("bash")]
+search query:
+{{- if eq .chezmoi.os "darwin" }}
+    SESSION=$(security find-generic-password -a "bitwarden" -s "BW_SESSION" -w 2>/dev/null || echo "")
+{{- else if eq .chezmoi.os "linux" }}
+    SESSION=$(pass show "bitwarden/BW_SESSION" 2>/dev/null || echo "")
+{{- end }}
+    if [[ -n "$SESSION" ]]; then
+        export BW_SESSION="$SESSION"
+    fi
+    bw list items --search "{{ "{{" }} query {{ "}}" }}" | jq '.[].name'
+
+# Get an item by name or ID
+[group("vault")]
+[script("bash")]
+get item:
+{{- if eq .chezmoi.os "darwin" }}
+    SESSION=$(security find-generic-password -a "bitwarden" -s "BW_SESSION" -w 2>/dev/null || echo "")
+{{- else if eq .chezmoi.os "linux" }}
+    SESSION=$(pass show "bitwarden/BW_SESSION" 2>/dev/null || echo "")
+{{- end }}
+    if [[ -n "$SESSION" ]]; then
+        export BW_SESSION="$SESSION"
+    fi
+    bw get item "{{ "{{" }} item {{ "}}" }}" | jq '.'

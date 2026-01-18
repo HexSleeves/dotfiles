@@ -1,8 +1,8 @@
-{{ if eq .chezmoi.os "darwin" -}}
+{{- if and (eq .chezmoi.os "darwin") (not (index . "headless" | default false)) -}}
 #!/usr/bin/env bash
 
 # Disable Spotlight indexing for Developer directory
 mkdir -p ~/Developer
 touch ~/Developer/.metadata_never_index
 echo "✅ Disabled Spotlight indexing for ~/Developer"
-{{ end -}}
+{{- end -}}

@@ -1,0 +1,235 @@
+#!/bin/bash
+{{- if eq .chezmoi.os "darwin" }}
+
+# Setup Bitwarden CLI
+# Idempotent script to configure Bitwarden with API key authentication
+
+set -euo pipefail
+
+echo "Setting up Bitwarden CLI..."
+
+# Check if bw is installed
+if ! command -v bw >/dev/null 2>&1; then
+    echo "Bitwarden CLI not found. Installing via Homebrew..."
+    if command -v brew >/dev/null 2>&1; then
+        brew install bitwarden-cli
+    else
+        echo "Homebrew not found. Please install bitwarden-cli manually."
+        exit 1
+    fi
+fi
+
+# Function to get secret from keychain
+get_keychain_secret() {
+    local service="$1"
+    security find-generic-password -a "bitwarden" -s "$service" -w 2>/dev/null || echo ""
+}
+
+# Function to set secret in keychain
+set_keychain_secret() {
+    local service="$1"
+    local secret="$2"
+    # Delete existing if present
+    security delete-generic-password -a "bitwarden" -s "$service" 2>/dev/null || true
+    # Add new secret
+    security add-generic-password -a "bitwarden" -s "$service" -w "$secret"
+}
+
+# Check if API credentials are already stored
+CLIENT_ID=$(get_keychain_secret "BW_CLIENTID")
+CLIENT_SECRET=$(get_keychain_secret "BW_CLIENTSECRET")
+
+if [[ -z "$CLIENT_ID" ]] || [[ -z "$CLIENT_SECRET" ]]; then
+    echo ""
+    echo "Bitwarden API credentials not found in keychain."
+    echo "To use Bitwarden with chezmoi, you need to set up API key authentication."
+    echo ""
+    echo "Get your API key from: https://vault.bitwarden.com/#/settings/security/security-keys"
+    echo ""
+    read -rp "Enter your Bitwarden Client ID: " CLIENT_ID
+    read -rsp "Enter your Bitwarden Client Secret: " CLIENT_SECRET
+    echo ""
+
+    if [[ -n "$CLIENT_ID" ]] && [[ -n "$CLIENT_SECRET" ]]; then
+        echo "Storing credentials in macOS Keychain..."
+        set_keychain_secret "BW_CLIENTID" "$CLIENT_ID"
+        set_keychain_secret "BW_CLIENTSECRET" "$CLIENT_SECRET"
+        echo "Credentials stored successfully."
+    else
+        echo "Skipping Bitwarden setup. Run 'bw-setup' later to configure."
+        exit 0
+    fi
+fi
+
+# Export credentials for login
+export BW_CLIENTID="$CLIENT_ID"
+export BW_CLIENTSECRET="$CLIENT_SECRET"
+
+# Check login status
+STATUS=$(bw status 2>/dev/null | jq -r '.status' 2>/dev/null || echo "unauthenticated")
+
+if [[ "$STATUS" == "unauthenticated" ]]; then
+    echo "Logging in to Bitwarden with API key..."
+    bw login --apikey
+fi
+
+# Unlock and store session
+echo ""
+echo "Unlocking Bitwarden vault..."
+echo "Enter your master password when prompted."
+
+SESSION=$(bw unlock --raw 2>/dev/null || echo "")
+
+if [[ -n "$SESSION" ]]; then
+    echo "Storing session in keychain..."
+    set_keychain_secret "BW_SESSION" "$SESSION"
+    echo "Bitwarden setup complete!"
+    echo ""
+    echo "You can now use Bitwarden with chezmoi templates:"
+    echo '  {{ (bitwarden "item" "example.com").login.password }}'
+    echo ""
+    echo "Useful commands:"
+    echo "  bw-status  - Check Bitwarden status"
+    echo "  bw-unlock  - Unlock vault and refresh session"
+    echo "  bw-lock    - Lock vault"
+    echo "  just bw    - See all Bitwarden commands"
+else
+    echo "Failed to unlock Bitwarden. Run 'bw-unlock' to try again."
+fi
+{{- else if eq .chezmoi.os "linux" }}
+
+# Setup Bitwarden CLI on Linux
+# Uses pass (GPG password manager) for credential storage
+
+set -euo pipefail
+
+echo "Setting up Bitwarden CLI..."
+
+# Check if bw is installed
+if ! command -v bw >/dev/null 2>&1; then
+    echo "Bitwarden CLI not found. Installing..."
+    if command -v apt-get >/dev/null 2>&1; then
+        # Debian/Ubuntu - use snap
+        if command -v snap >/dev/null 2>&1; then
+            sudo snap install bw
+        else
+            echo "Please install bitwarden-cli manually: https://bitwarden.com/help/cli/"
+            exit 1
+        fi
+    elif command -v pacman >/dev/null 2>&1; then
+        # Arch Linux
+        sudo pacman -S --noconfirm bitwarden-cli
+    elif command -v dnf >/dev/null 2>&1; then
+        # Fedora - use snap
+        if command -v snap >/dev/null 2>&1; then
+            sudo snap install bw
+        else
+            echo "Please install bitwarden-cli manually: https://bitwarden.com/help/cli/"
+            exit 1
+        fi
+    else
+        echo "Please install bitwarden-cli manually: https://bitwarden.com/help/cli/"
+        exit 1
+    fi
+fi
+
+# Check if pass is installed
+if ! command -v pass >/dev/null 2>&1; then
+    echo "pass (password manager) not found. Installing..."
+    if command -v apt-get >/dev/null 2>&1; then
+        sudo apt-get install -y pass
+    elif command -v pacman >/dev/null 2>&1; then
+        sudo pacman -S --noconfirm pass
+    elif command -v dnf >/dev/null 2>&1; then
+        sudo dnf install -y pass
+    else
+        echo "Please install pass manually."
+        exit 1
+    fi
+fi
+
+# Check if pass is initialized
+if [[ ! -d "$HOME/.password-store" ]]; then
+    echo ""
+    echo "pass is not initialized."
+    echo "Please run: pass init {{ .signingkey }}"
+    echo ""
+    echo "Then re-run this script."
+    exit 0
+fi
+
+# Function to get secret from pass
+get_pass_secret() {
+    local path="$1"
+    pass show "bitwarden/$path" 2>/dev/null || echo ""
+}
+
+# Function to set secret in pass
+set_pass_secret() {
+    local path="$1"
+    local secret="$2"
+    echo "$secret" | pass insert -f "bitwarden/$path"
+}
+
+# Check if API credentials are already stored
+CLIENT_ID=$(get_pass_secret "BW_CLIENTID")
+CLIENT_SECRET=$(get_pass_secret "BW_CLIENTSECRET")
+
+if [[ -z "$CLIENT_ID" ]] || [[ -z "$CLIENT_SECRET" ]]; then
+    echo ""
+    echo "Bitwarden API credentials not found in pass."
+    echo "To use Bitwarden with chezmoi, you need to set up API key authentication."
+    echo ""
+    echo "Get your API key from: https://vault.bitwarden.com/#/settings/security/security-keys"
+    echo ""
+    read -rp "Enter your Bitwarden Client ID: " CLIENT_ID
+    read -rsp "Enter your Bitwarden Client Secret: " CLIENT_SECRET
+    echo ""
+
+    if [[ -n "$CLIENT_ID" ]] && [[ -n "$CLIENT_SECRET" ]]; then
+        echo "Storing credentials in pass..."
+        set_pass_secret "BW_CLIENTID" "$CLIENT_ID"
+        set_pass_secret "BW_CLIENTSECRET" "$CLIENT_SECRET"
+        echo "Credentials stored successfully."
+    else
+        echo "Skipping Bitwarden setup. Run 'bw-setup' later to configure."
+        exit 0
+    fi
+fi
+
+# Export credentials for login
+export BW_CLIENTID="$CLIENT_ID"
+export BW_CLIENTSECRET="$CLIENT_SECRET"
+
+# Check login status
+STATUS=$(bw status 2>/dev/null | jq -r '.status' 2>/dev/null || echo "unauthenticated")
+
+if [[ "$STATUS" == "unauthenticated" ]]; then
+    echo "Logging in to Bitwarden with API key..."
+    bw login --apikey
+fi
+
+# Unlock and store session
+echo ""
+echo "Unlocking Bitwarden vault..."
+echo "Enter your master password when prompted."
+
+SESSION=$(bw unlock --raw 2>/dev/null || echo "")
+
+if [[ -n "$SESSION" ]]; then
+    echo "Storing session in pass..."
+    set_pass_secret "BW_SESSION" "$SESSION"
+    echo "Bitwarden setup complete!"
+    echo ""
+    echo "You can now use Bitwarden with chezmoi templates:"
+    echo '  {{ (bitwarden "item" "example.com").login.password }}'
+    echo ""
+    echo "Useful commands:"
+    echo "  bw-status  - Check Bitwarden status"
+    echo "  bw-unlock  - Unlock vault and refresh session"
+    echo "  bw-lock    - Lock vault"
+    echo "  just bw    - See all Bitwarden commands"
+else
+    echo "Failed to unlock Bitwarden. Run 'bw-unlock' to try again."
+fi
+{{- end }}

@@ -2,7 +2,7 @@
 # macOS defaults configuration
 # Inspired from https://github.com/mathiasbynens/dotfiles/blob/master/.macos
 
-{{ if eq .chezmoi.os "darwin" -}}
+{{- if and (eq .chezmoi.os "darwin") (not (index . "headless" | default false)) -}}
 
 set -euo pipefail
 

@@ -1,0 +1,21 @@
+#!/bin/bash
+{{- if or (eq .chezmoi.os "darwin") (eq .chezmoi.os "linux") }}
+
+# Install additional zsh conf.d files
+# Hash: {{ include "dot_config/dotfiles/encrypted_ai-providers.local.zsh.asc" | sha256sum }}
+
+set -euo pipefail
+
+CONF_DIR="$HOME/.config/zsh/conf.d"
+
+# Create conf.d if it doesn't exist (zdotdir external should create .config/zsh)
+mkdir -p "$CONF_DIR"
+
+# Copy ai-providers config if source exists
+SOURCE_FILE="$HOME/.config/dotfiles/ai-providers.local.zsh"
+if [[ -f "$SOURCE_FILE" ]]; then
+    echo "Installing ai-providers.local.zsh to $CONF_DIR..."
+    cp "$SOURCE_FILE" "$CONF_DIR/ai-providers.local.zsh"
+    echo "Installed ai-providers.local.zsh"
+fi
+{{- end }}

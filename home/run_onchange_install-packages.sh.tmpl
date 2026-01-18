@@ -4,10 +4,7 @@
 
 set -euo pipefail
 
-# Get the current class from chezmoi data
-CLASS="{{ .class }}"
-
-echo "📦 Bootstrapping packages for '${CLASS}' profile..."
+echo "📦 Bootstrapping packages for '{{ .class }}' profile..."
 
 # Helper functions for better error handling
 install_if_missing() {
@@ -49,30 +46,30 @@ install_homebrew_if_missing() {
     fi
 }
 
-{{ if eq .chezmoi.os "darwin" -}}
+{{- if eq .chezmoi.os "darwin" -}}
 
 # macOS-specific setup
 echo "🍎 Detected macOS"
 
-# macOS System Updates (skip for Work machines)
-if [[ "$CLASS" != "Work" ]]; then
-    echo "Checking for macOS system updates..."
-    if sudo softwareupdate -i -a 2>/dev/null; then
-        echo "✅ System updates completed"
-    else
-        echo "⚠️  System updates failed or no updates available"
-    fi
+{{- if and (ne .class "Work") (not (index . "ephemeral" | default false)) }}
+# macOS System Updates (skip for Work machines and ephemeral environments)
+echo "Checking for macOS system updates..."
+if sudo softwareupdate -i -a 2>/dev/null; then
+    echo "✅ System updates completed"
+else
+    echo "⚠️  System updates failed or no updates available"
+fi
 
-    # Install Rosetta for Apple Silicon Macs
-    if [[ $(uname -m) == 'arm64' ]]; then
-        echo "Installing Rosetta for Apple Silicon..."
-        if sudo softwareupdate --install-rosetta --agree-to-license 2>/dev/null; then
-            echo "✅ Rosetta installed successfully"
-        else
-            echo "⚠️  Rosetta installation failed or already installed"
-        fi
+# Install Rosetta for Apple Silicon Macs
+if [[ $(uname -m) == 'arm64' ]]; then
+    echo "Installing Rosetta for Apple Silicon..."
+    if sudo softwareupdate --install-rosetta --agree-to-license 2>/dev/null; then
+        echo "✅ Rosetta installed successfully"
+    else
+        echo "⚠️  Rosetta installation failed or already installed"
     fi
 fi
+{{- end }}
 
 # Install Xcode Command Line Tools
 if ! command -v git >/dev/null 2>&1; then
@@ -98,7 +95,7 @@ if [[ -f "{{ .chezmoi.homeDir }}/.local/share/chezmoi/Brewfile" ]]; then
     fi
 fi
 
-{{ else if eq .chezmoi.os "linux" -}}
+{{- else if eq .chezmoi.os "linux" -}}
 
 # Linux-specific setup
 echo "🐧 Detected Linux"
@@ -116,7 +113,7 @@ elif command -v pacman >/dev/null 2>&1; then
     sudo pacman -S --noconfirm git curl base-devel
 fi
 
-{{ end -}}
+{{- end -}}
 
 # Install mise (version manager)
 install_if_missing "mise" "curl https://mise.run | sh" "mise (version manager)"
@@ -152,7 +149,7 @@ if command -v cargo >/dev/null 2>&1; then
     fi
 fi
 
-{{ if eq .chezmoi.os "darwin" -}}
+{{- if eq .chezmoi.os "darwin" -}}
 
 # Install FZF with shell integrations
 if [[ ! -f "{{ .chezmoi.homeDir }}/.fzf.zsh" ]]; then
@@ -173,6 +170,6 @@ fi
 echo "Updating Homebrew and cleaning up..."
 brew update && brew upgrade && brew cleanup
 
-{{ end -}}
+{{- end -}}
 
 echo "🎉 Core package installation completed!"

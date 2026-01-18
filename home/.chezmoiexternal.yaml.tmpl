@@ -1,5 +1,14 @@
 # Manage external git repositories
 {{ if or (eq .chezmoi.os "darwin") (eq .chezmoi.os "linux") -}}
+{{- /* Determine glow binary OS and architecture */ -}}
+{{- $glowArch := "x86_64" -}}
+{{- $glowOS := "Linux" -}}
+{{- if eq .chezmoi.os "darwin" -}}
+{{-   $glowOS = "Darwin" -}}
+{{-   if eq .chezmoi.arch "arm64" -}}
+{{-     $glowArch = "arm64" -}}
+{{-   end -}}
+{{- end }}
 
 ".config/nvim":
     type: "git-repo"
@@ -13,6 +22,7 @@
     pull:
         args: ["--rebase"]
 
+{{ if not (index . "ephemeral" | default false) -}}
 ".local/share/fonts/Monaspace":
     type: "archive"
     url: "https://github.com/githubnext/monaspace/archive/master.zip"
@@ -20,10 +30,11 @@
     stripComponents: 4
     refreshPeriod: "168h"
     include: ["**/*.otf", "**/*.ttf"]
+{{ end }}
 
 ".local/bin/glow":
     type: "archive-file"
-    url: {{ gitHubLatestReleaseAssetURL "charmbracelet/glow" "glow_*_Linux_x86_64.tar.gz" | quote }}
+    url: {{ gitHubLatestReleaseAssetURL "charmbracelet/glow" (printf "glow_*_%s_%s.tar.gz" $glowOS $glowArch) | quote }}
     executable: true
     stripComponents: 1
     path: "glow"

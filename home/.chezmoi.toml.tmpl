@@ -1,9 +1,21 @@
 {{- /* Checks if running interactively */ -}}
 {{- $interactive := stdinIsATTY -}}
 
-{{- $ephemeral := false -}}{{/* true if this machine is ephemeral, e.g. a cloud or VM instance */}}
-{{- $personal := false -}}{{/* true if this machine should have personal secrets */}}
+{{- /*
+  Environment Detection Variables
+  ===============================
+  These variables detect the type of environment chezmoi is running in.
+  They are exposed in [data] section for use in other templates.
 
+  - ephemeral: true for cloud/container environments (Codespaces, Docker, Vagrant, etc.)
+               Use to skip expensive operations or persistent state
+  - headless:  true when no display available or connected via SSH
+               Use to skip GUI-related scripts and configurations
+  - personal:  true if this machine should have personal secrets (currently unused)
+               Reserved for future use to control sensitive data deployment
+*/ -}}
+{{- $ephemeral := false -}}
+{{- $personal := false -}}
 {{- $headless := or (env "SSH_CLIENT" | not | not) (not (or (env "DISPLAY") (env "WAYLAND_DISPLAY"))) -}}
 
 {{- $osID := .chezmoi.os -}}
@@ -20,7 +32,7 @@
 {{/* work around unreliable hostname on darwin */}}
 {{- $hostname := .chezmoi.hostname -}}
 {{- if eq .chezmoi.os "darwin" -}}
-{{-   $hostname := output "scutil" "--get" "LocalHostName" | trim -}}
+{{-   $hostname = output "scutil" "--get" "LocalHostName" | trim -}}
 {{- end -}}
 
 {{- if $interactive -}}
@@ -37,20 +49,27 @@
 {{-   $email = "jacob.lecoq.ext@bayer.com" -}}
 {{- end -}}
 
-encryption = "gpg"
+{# encryption = "gpg"
+[gpg]
+    symmetric = true
+    recipient = "33EC7B08ED47E6E3"
+    args = ["--batch", "--passphrase", {{ $passphrase | quote }}, "--no-symkey-cache"] #}
+
+encryption = "age"
+[age]
+    identity = "~/.config/chezmoi/key.txt"
+    recipient = "age1nthfhmkgfw3ts4aq8s7hvkncrhm7h2l2qvg4e2nek0dh65ys058q2p2xsd"
 
 [data]
     osid = {{ $osID | quote }}
     email = {{ $email | quote }}
     class = {{ $class | quote }}
-    headless = {{ $headless | quote }}
-    ephemeral = {{ $ephemeral | quote }}
+    headless = {{ $headless }}
+    ephemeral = {{ $ephemeral }}
     signingkey = "75514B13ECEAA46F3FBADF5333EC7B08ED47E6E3"
 
-[gpg]
-    symmetric = true
-    recipient = "33EC7B08ED47E6E3"
-    args = ["--batch", "--passphrase", {{ $passphrase | quote }}, "--no-symkey-cache"]
+[bitwarden]
+    command = "bw"
 
 [diff]
     exclude = ["scripts"]

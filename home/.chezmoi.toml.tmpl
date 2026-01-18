@@ -1,0 +1,59 @@
+{{- /* Checks if running interactively */ -}}
+{{- $interactive := stdinIsATTY -}}
+
+{{- $ephemeral := false -}}{{/* true if this machine is ephemeral, e.g. a cloud or VM instance */}}
+{{- $personal := false -}}{{/* true if this machine should have personal secrets */}}
+
+{{- $headless := or (env "SSH_CLIENT" | not | not) (not (or (env "DISPLAY") (env "WAYLAND_DISPLAY"))) -}}
+
+{{- $osID := .chezmoi.os -}}
+{{- if (and (eq .chezmoi.os "linux") (hasKey .chezmoi.osRelease "id")) -}}
+    {{-   $osID = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
+{{- end -}}
+
+{{/* detect GitHub codespaces, VSCode remote containers, Docker containers, Multipass VMs, and Vagrant boxes */}}
+{{- if or (env "CODESPACES") (env "REMOTE_CONTAINERS_IPC") (eq .chezmoi.username "root" "ubuntu" "vagrant" "vscode") -}}
+    {{-   $ephemeral = true -}}
+    {{-   $headless = true -}}
+{{- end -}}
+
+{{/* work around unreliable hostname on darwin */}}
+{{- $hostname := .chezmoi.hostname -}}
+{{- if eq .chezmoi.os "darwin" -}}
+{{-   $hostname := output "scutil" "--get" "LocalHostName" | trim -}}
+{{- end -}}
+
+{{- if $interactive -}}
+{{-   writeToStdout "💡 Tip: you can re-enter your data with `chezmoi init --data=false`.\n" -}}
+{{- end -}}
+
+{{- $class := promptStringOnce . "machine_class" "Machine class (Personal/Work)" -}}
+{{- $passphrase := keyring "chezmoi" "gpg-passphrase" -}}
+
+{{- $work := eq $class "Work" -}}
+
+{{- $email := "lecoqjacob@gmail.com" -}}
+{{- if $work -}}
+{{-   $email = "jacob.lecoq.ext@bayer.com" -}}
+{{- end -}}
+
+encryption = "gpg"
+
+[data]
+    osid = {{ $osID | quote }}
+    email = {{ $email | quote }}
+    class = {{ $class | quote }}
+    headless = {{ $headless | quote }}
+    ephemeral = {{ $ephemeral | quote }}
+    signingkey = "75514B13ECEAA46F3FBADF5333EC7B08ED47E6E3"
+
+[gpg]
+    symmetric = true
+    recipient = "33EC7B08ED47E6E3"
+    args = ["--batch", "--passphrase", {{ $passphrase | quote }}, "--no-symkey-cache"]
+
+[diff]
+    exclude = ["scripts"]
+
+[status]
+    exclude = ["scripts"]

@@ -1,0 +1,31 @@
+# Manage external git repositories
+{{ if or (eq .chezmoi.os "darwin") (eq .chezmoi.os "linux") -}}
+
+".config/nvim":
+    type: "git-repo"
+    url: "https://github.com/HexSleeves/nvim.git"
+    pull:
+        args: ["--rebase"]
+
+".config/zsh":
+    type: "git-repo"
+    url: "https://github.com/HexSleeves/zdotdir.git"
+    pull:
+        args: ["--rebase"]
+
+".local/share/fonts/Monaspace":
+    type: "archive"
+    url: "https://github.com/githubnext/monaspace/archive/master.zip"
+    exact: true
+    stripComponents: 4
+    refreshPeriod: "168h"
+    include: ["**/*.otf", "**/*.ttf"]
+
+".local/bin/glow":
+    type: "archive-file"
+    url: {{ gitHubLatestReleaseAssetURL "charmbracelet/glow" "glow_*_Linux_x86_64.tar.gz" | quote }}
+    executable: true
+    stripComponents: 1
+    path: "glow"
+
+{{ end -}}

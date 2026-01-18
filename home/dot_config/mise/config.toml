@@ -1,0 +1,15 @@
+[tools]
+bun = "latest"
+cargo-binstall = "latest"
+deno = "latest"
+go             = "latest"
+lua = "latest"
+neovim         = "nightly"
+node = "24"
+python = "latest"
+yamlfmt        = "latest"
+
+[settings]
+idiomatic_version_file_enable_tools = ["python"]
+activate_aggressive                 = true
+experimental                        = true

@@ -1,0 +1,19 @@
+[sso-session Bayer]
+sso_start_url = https://bayer-prod.awsapps.com/start/#
+sso_region = us-east-1
+sso_registration_scopes = sso:account:access
+
+[profile user-np]
+sso_session = Bayer
+sso_account_id = 767839888516
+sso_role_name = sso-standard-user
+region = us-east-1
+output = json
+login_session = arn:aws:sts::767839888516:assumed-role/AWSReservedSSO_sso-standard-user_1959fe4c6c4de942/jacob.lecoq.ext@bayer.com
+
+[profile user-prod]
+sso_session = Bayer
+sso_account_id = 435797107917
+sso_role_name = sso-standard-user
+region = us-east-1
+output = json

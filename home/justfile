@@ -1,0 +1,39 @@
+set dotenv-load := false
+set export := true
+set quiet := true
+set unstable := true
+
+export JUST_UNSTABLE := "true"
+
+mod claude '.justfiles/claude.justfile'
+mod codex '.justfiles/codex.justfile'
+mod copilot '.justfiles/copilot.justfile'
+mod gemini '.justfiles/gemini.justfile'
+mod mise '.justfiles/mise.justfile'
+
+HOST := `hostname -s`
+
+[private]
+@default:
+    just --list --list-submodules
+
+# Setup mise
+[group("setup")]
+@bootstrap:
+    just mise::bootstrap
+
+# Format and overwrite justfile
+[group("utils")]
+@fmt:
+    just --fmt --unstable
+    just claude fmt
+    just codex fmt
+    just copilot fmt
+    just gemini fmt
+    just mise fmt
+
+# Upgrade all tools (uv and mise)
+[group("maintenance")]
+@upgrade:
+    uv tool upgrade --all
+    just mise::upgrade

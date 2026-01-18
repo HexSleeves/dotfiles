@@ -1,4 +1,3 @@
-{{- /* Checks if running interactively */ -}}
 {{- $interactive := stdinIsATTY -}}
 
 {{- /*
@@ -49,16 +48,16 @@
 {{-   $email = "jacob.lecoq.ext@bayer.com" -}}
 {{- end -}}
 
-{# encryption = "gpg"
+{{/* encryption = "gpg"
 [gpg]
     symmetric = true
     recipient = "33EC7B08ED47E6E3"
-    args = ["--batch", "--passphrase", {{ $passphrase | quote }}, "--no-symkey-cache"] #}
+    args = ["--batch", "--passphrase", {{ $passphrase | quote }}, "--no-symkey-cache"] */}}
 
 encryption = "age"
 [age]
     identity = "~/.config/chezmoi/key.txt"
-    recipient = "age1nthfhmkgfw3ts4aq8s7hvkncrhm7h2l2qvg4e2nek0dh65ys058q2p2xsd"
+    recipient = "age16jyvklu7cs0ru087d8z2zv8jwsj2dmqxgs3gu7jycgc9p8gh3qcs6hh6zl"
 
 [data]
     osid = {{ $osID | quote }}

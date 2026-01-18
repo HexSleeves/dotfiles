@@ -46,12 +46,11 @@ install_homebrew_if_missing() {
     fi
 }
 
-{{- if eq .chezmoi.os "darwin" -}}
-
+{{ if eq .chezmoi.os "darwin" }}
 # macOS-specific setup
 echo "🍎 Detected macOS"
 
-{{- if and (ne .class "Work") (not (index . "ephemeral" | default false)) }}
+{{ if and (ne .class "Work") (not (index . "ephemeral" | default false)) -}}
 # macOS System Updates (skip for Work machines and ephemeral environments)
 echo "Checking for macOS system updates..."
 if sudo softwareupdate -i -a 2>/dev/null; then
@@ -69,7 +68,7 @@ if [[ $(uname -m) == 'arm64' ]]; then
         echo "⚠️  Rosetta installation failed or already installed"
     fi
 fi
-{{- end }}
+{{ end -}}
 
 # Install Xcode Command Line Tools
 if ! command -v git >/dev/null 2>&1; then
@@ -94,8 +93,7 @@ if [[ -f "{{ .chezmoi.homeDir }}/.local/share/chezmoi/Brewfile" ]]; then
         echo "⚠️  Some Brewfile packages failed to install"
     fi
 fi
-
-{{- else if eq .chezmoi.os "linux" -}}
+{{ else if eq .chezmoi.os "linux" }}
 
 # Linux-specific setup
 echo "🐧 Detected Linux"
@@ -112,8 +110,7 @@ elif command -v pacman >/dev/null 2>&1; then
     echo "Installing packages with pacman..."
     sudo pacman -S --noconfirm git curl base-devel
 fi
-
-{{- end -}}
+{{ end }}
 
 # Install mise (version manager)
 install_if_missing "mise" "curl https://mise.run | sh" "mise (version manager)"
@@ -149,8 +146,7 @@ if command -v cargo >/dev/null 2>&1; then
     fi
 fi
 
-{{- if eq .chezmoi.os "darwin" -}}
-
+{{ if eq .chezmoi.os "darwin" }}
 # Install FZF with shell integrations
 if [[ ! -f "{{ .chezmoi.homeDir }}/.fzf.zsh" ]]; then
     echo "Setting up FZF shell integrations..."
@@ -169,7 +165,6 @@ fi
 # Update Homebrew and cleanup
 echo "Updating Homebrew and cleaning up..."
 brew update && brew upgrade && brew cleanup
-
-{{- end -}}
+{{ end }}
 
 echo "🎉 Core package installation completed!"

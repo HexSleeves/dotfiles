@@ -31,7 +31,7 @@ review = "!f() { git log -p --reverse \"$@\" origin/master...HEAD; }; f"
 rmuntracked = clean -df
 root = rev-parse --show-toplevel
 s = status
-searchfiles = "log --name-status --source --all -S" 
+searchfiles = "log --name-status --source --all -S"
 searchtext = "!f() { git grep \"$*\" $(git rev-list --all); }; f"
 uncommit = reset --soft HEAD^
 unstage = reset HEAD --
@@ -113,4 +113,3 @@ required = true
 clean = git-lfs clean -- %f
 smudge = git-lfs smudge -- %f
 process = git-lfs filter-process
-

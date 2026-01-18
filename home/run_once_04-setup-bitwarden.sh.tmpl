@@ -86,7 +86,7 @@ if [[ -n "$SESSION" ]]; then
     echo "Bitwarden setup complete!"
     echo ""
     echo "You can now use Bitwarden with chezmoi templates:"
-    echo '  {{ (bitwarden "item" "example.com").login.password }}'
+    echo '  {{ "{{" }} (bitwarden "item" "example.com").login.password {{ "}}" }}'
     echo ""
     echo "Useful commands:"
     echo "  bw-status  - Check Bitwarden status"
@@ -222,7 +222,7 @@ if [[ -n "$SESSION" ]]; then
     echo "Bitwarden setup complete!"
     echo ""
     echo "You can now use Bitwarden with chezmoi templates:"
-    echo '  {{ (bitwarden "item" "example.com").login.password }}'
+    echo '  {{ "{{" }} (bitwarden "item" "example.com").login.password {{ "}}" }}'
     echo ""
     echo "Useful commands:"
     echo "  bw-status  - Check Bitwarden status"

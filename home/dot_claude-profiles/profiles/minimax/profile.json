@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "name": "minimax",
+  "created_at": "2026-01-12T04:13:33.586217Z",
+  "updated_at": "2026-01-12T04:13:33.586217Z",
+  "managed_components": [
+    "settings"
+  ],
+  "migration": {
+    "migrated_from_legacy": true,
+    "migration_date": "2026-01-12T04:13:33.586217Z"
+  }
+}

@@ -1,0 +1,124 @@
+# =============================================================================
+# SSH Config - Best Practices & Optimizations
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Global Defaults (applied to all hosts unless overridden)
+# -----------------------------------------------------------------------------
+Host *
+    # --- Key Management ---
+    AddKeysToAgent yes
+    UseKeychain yes
+    IdentitiesOnly yes
+
+    # --- Connection Multiplexing (reuse connections for speed) ---
+    ControlMaster auto
+    ControlPath ~/.ssh/sockets/%r@%h-%p
+    ControlPersist 600
+
+    # --- Keep-Alive Settings (prevent timeouts) ---
+    ServerAliveInterval 60
+    ServerAliveCountMax 3
+    TCPKeepAlive yes
+
+    # --- Security Best Practices ---
+    HashKnownHosts yes
+    VisualHostKey no
+    StrictHostKeyChecking ask
+    UpdateHostKeys yes
+    VerifyHostKeyDNS yes
+
+    # --- Performance ---
+    Compression yes
+    ConnectionAttempts 2
+
+    # --- Preferred Authentication ---
+    PreferredAuthentications publickey,keyboard-interactive,password
+    PubkeyAuthentication yes
+    PasswordAuthentication no
+
+    # --- Modern Ciphers (ordered by preference) ---
+    Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
+
+    # --- Modern Key Exchange ---
+    KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group-exchange-sha256
+
+    # --- Modern MACs ---
+    MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256
+
+    # --- Host Key Algorithms ---
+    HostKeyAlgorithms ssh-ed25519-cert-v01@openssh.com,ssh-ed25519,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-256-cert-v01@openssh.com,rsa-sha2-512,rsa-sha2-256
+
+# -----------------------------------------------------------------------------
+# GitHub
+# -----------------------------------------------------------------------------
+Host github.com
+    HostName github.com
+    User git
+    #IdentityFile ~/.ssh/id_ed25519
+
+Host gist.github.com
+    HostName gist.github.com
+    User git
+    #IdentityFile ~/.ssh/id_ed25519
+
+# -----------------------------------------------------------------------------
+# GitLab (if needed, uncomment and configure)
+# -----------------------------------------------------------------------------
+# Host gitlab.com
+#     HostName gitlab.com
+#     User git
+#     IdentityFile ~/.ssh/id_ed25519
+
+# -----------------------------------------------------------------------------
+# Bayer-specific hosts (using dedicated key)
+# -----------------------------------------------------------------------------
+Host *.bayer.com *.bayer.cnb
+    IdentityFile ~/.ssh/id_bayer
+    # Uncomment and adjust if internal hosts have different requirements:
+    # StrictHostKeyChecking no
+    # UserKnownHostsFile /dev/null
+
+# -----------------------------------------------------------------------------
+# Example: Jump Host / Bastion Configuration
+# -----------------------------------------------------------------------------
+# Host bastion
+#     HostName bastion.example.com
+#     User admin
+#     IdentityFile ~/.ssh/id_ed25519
+#     ForwardAgent no
+#
+# Host internal-server
+#     HostName 10.0.0.50
+#     User deploy
+#     ProxyJump bastion
+#     IdentityFile ~/.ssh/id_ed25519
+
+# -----------------------------------------------------------------------------
+# Local Development / VMs
+# -----------------------------------------------------------------------------
+Host localhost 127.0.0.1
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+    LogLevel ERROR
+
+# -----------------------------------------------------------------------------
+# AWS EC2 Instances (example pattern)
+# -----------------------------------------------------------------------------
+# Host ec2-*
+#     User ec2-user
+#     IdentityFile ~/.ssh/aws-key.pem
+#     StrictHostKeyChecking no
+
+# -----------------------------------------------------------------------------
+# Notes:
+# -----------------------------------------------------------------------------
+# - ControlMaster: Multiplexes connections for faster subsequent connections
+# - ControlPersist: Keeps master connection alive for 10 minutes (600 seconds)
+# - ServerAliveInterval: Sends keep-alive every 60 seconds
+# - IdentitiesOnly: Only use specified keys (prevents trying all keys)
+# - Compression: Helps on slow connections, negligible impact on fast ones
+#
+# Required: Create the sockets directory:
+#   mkdir -p ~/.ssh/sockets && chmod 700 ~/.ssh/sockets
+# =============================================================================

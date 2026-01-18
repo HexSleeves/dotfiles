@@ -16,11 +16,11 @@
 	autocrlf = input
 	whitespace = trailing-space,space-before-tab
 	excludesfile = ~/.config/git/ignore
-{{- if eq .class "Work" }}
+{# {{- if eq .class "Work" }}
 	sshCommand = ssh -i ~/.ssh/id_bayer
 {{- else }}
 	sshCommand = ssh -i ~/.ssh/id_ed25519
-{{- end }}
+{{- end }} #}
 
 [init]
 	defaultBranch = main
@@ -216,8 +216,8 @@
 	fsckObjects = true
 
 {{- if eq .class "Work" }}
-[url "git@github.com-work:"]
-	insteadOf = git@github.com:
+{# [url "git@github.com-work:"]
+	insteadOf = git@github.com: #}
 
 [credential]
 	helper =

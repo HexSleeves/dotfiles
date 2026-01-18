@@ -2,7 +2,9 @@
 {{- if or (eq .chezmoi.os "darwin") (eq .chezmoi.os "linux") }}
 
 # Install additional zsh conf.d files
+{{ if stat "dot_config/dotfiles/encrypted_ai-providers.local.zsh.asc" -}}
 # Hash: {{ include "dot_config/dotfiles/encrypted_ai-providers.local.zsh.asc" | sha256sum }}
+{{ end -}}
 
 set -euo pipefail
 

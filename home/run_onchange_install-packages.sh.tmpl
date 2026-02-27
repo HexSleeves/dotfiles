@@ -106,10 +106,14 @@ brewfile_source="{{ .chezmoi.sourceDir }}/home/Brewfile"
 
 if [[ -f "$brewfile_target" ]]; then
     log "Installing packages from $brewfile_target"
-    brew bundle install --file="$brewfile_target"
+    if ! brew bundle install --file="$brewfile_target"; then
+        warn "brew bundle failed; continuing bootstrap. Re-run manually with: brew bundle install --file=\"$brewfile_target\""
+    fi
 elif [[ -f "$brewfile_source" ]]; then
     log "Installing packages from $brewfile_source"
-    brew bundle install --file="$brewfile_source"
+    if ! brew bundle install --file="$brewfile_source"; then
+        warn "brew bundle failed; continuing bootstrap. Re-run manually with: brew bundle install --file=\"$brewfile_source\""
+    fi
 else
     warn "No Brewfile found; skipping brew bundle"
 fi

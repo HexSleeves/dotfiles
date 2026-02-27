@@ -1,0 +1,144 @@
+{
+  "version": 2,
+  "plugins": {
+    "superpowers@superpowers-marketplace": [
+      {
+        "scope": "user",
+        "installPath": "/Users/jacob.lecoq.ext/.claude/plugins/cache/superpowers-marketplace/superpowers/4.2.0",
+        "version": "4.2.0",
+        "installedAt": "2026-02-12T16:24:57.403Z",
+        "lastUpdated": "2026-02-12T16:24:57.403Z",
+        "gitCommitSha": "b97b5f228d3118f156eef471b9b3f464ff0ef6ea"
+      }
+    ],
+    "code-review@claude-code-plugins": [
+      {
+        "scope": "user",
+        "installPath": "/Users/jacob.lecoq.ext/.claude/plugins/cache/claude-code-plugins/code-review/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-12T16:26:34.656Z",
+        "lastUpdated": "2026-02-12T16:26:34.656Z",
+        "gitCommitSha": "bac22cb316907f1ba67a306551e2ec64976a6b52"
+      }
+    ],
+    "commit-commands@claude-code-plugins": [
+      {
+        "scope": "user",
+        "installPath": "/Users/jacob.lecoq.ext/.claude/plugins/cache/claude-code-plugins/commit-commands/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-12T16:26:34.665Z",
+        "lastUpdated": "2026-02-12T16:26:34.665Z",
+        "gitCommitSha": "bac22cb316907f1ba67a306551e2ec64976a6b52"
+      }
+    ],
+    "elements-of-style@superpowers-marketplace": [
+      {
+        "scope": "user",
+        "installPath": "/Users/jacob.lecoq.ext/.claude/plugins/cache/superpowers-marketplace/elements-of-style/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-12T16:26:42.130Z",
+        "lastUpdated": "2026-02-12T16:26:42.130Z",
+        "gitCommitSha": "6099c505c2a8eb066f3777f83a97d9d828f7954c"
+      }
+    ],
+    "episodic-memory@superpowers-marketplace": [
+      {
+        "scope": "user",
+        "installPath": "/Users/jacob.lecoq.ext/.claude/plugins/cache/superpowers-marketplace/episodic-memory/1.0.15",
+        "version": "1.0.15",
+        "installedAt": "2026-02-12T16:26:47.082Z",
+        "lastUpdated": "2026-02-12T16:26:47.082Z",
+        "gitCommitSha": "6feaa5bd8752ae104c88d251e68ce19c30a1bd2f"
+      }
+    ],
+    "feature-dev@claude-code-plugins": [
+      {
+        "scope": "user",
+        "installPath": "/Users/jacob.lecoq.ext/.claude/plugins/cache/claude-code-plugins/feature-dev/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-12T16:26:47.088Z",
+        "lastUpdated": "2026-02-12T16:26:47.088Z",
+        "gitCommitSha": "bac22cb316907f1ba67a306551e2ec64976a6b52"
+      }
+    ],
+    "frontend-design@claude-code-plugins": [
+      {
+        "scope": "user",
+        "installPath": "/Users/jacob.lecoq.ext/.claude/plugins/cache/claude-code-plugins/frontend-design/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-12T16:26:47.091Z",
+        "lastUpdated": "2026-02-12T16:26:47.091Z",
+        "gitCommitSha": "bac22cb316907f1ba67a306551e2ec64976a6b52"
+      }
+    ],
+    "learning-output-style@claude-code-plugins": [
+      {
+        "scope": "user",
+        "installPath": "/Users/jacob.lecoq.ext/.claude/plugins/cache/claude-code-plugins/learning-output-style/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-12T16:26:47.095Z",
+        "lastUpdated": "2026-02-12T16:26:47.095Z",
+        "gitCommitSha": "bac22cb316907f1ba67a306551e2ec64976a6b52"
+      }
+    ],
+    "pr-review-toolkit@claude-code-plugins": [
+      {
+        "scope": "user",
+        "installPath": "/Users/jacob.lecoq.ext/.claude/plugins/cache/claude-code-plugins/pr-review-toolkit/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-12T16:26:47.099Z",
+        "lastUpdated": "2026-02-12T16:26:47.099Z",
+        "gitCommitSha": "bac22cb316907f1ba67a306551e2ec64976a6b52"
+      }
+    ],
+    "ralph-wiggum@claude-code-plugins": [
+      {
+        "scope": "user",
+        "installPath": "/Users/jacob.lecoq.ext/.claude/plugins/cache/claude-code-plugins/ralph-wiggum/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-12T16:26:47.104Z",
+        "lastUpdated": "2026-02-12T16:26:47.104Z",
+        "gitCommitSha": "bac22cb316907f1ba67a306551e2ec64976a6b52"
+      }
+    ],
+    "security-guidance@claude-code-plugins": [
+      {
+        "scope": "user",
+        "installPath": "/Users/jacob.lecoq.ext/.claude/plugins/cache/claude-code-plugins/security-guidance/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-02-12T16:26:47.108Z",
+        "lastUpdated": "2026-02-12T16:26:47.108Z",
+        "gitCommitSha": "bac22cb316907f1ba67a306551e2ec64976a6b52"
+      }
+    ],
+    "superpowers-chrome@superpowers-marketplace": [
+      {
+        "scope": "user",
+        "installPath": "/Users/jacob.lecoq.ext/.claude/plugins/cache/superpowers-marketplace/superpowers-chrome/1.6.1",
+        "version": "1.6.1",
+        "installedAt": "2026-02-12T16:26:51.258Z",
+        "lastUpdated": "2026-02-12T16:26:51.258Z",
+        "gitCommitSha": "ac8d84dd645737007d65fa627a78526e6992f7d6"
+      }
+    ],
+    "superpowers-lab@superpowers-marketplace": [
+      {
+        "scope": "user",
+        "installPath": "/Users/jacob.lecoq.ext/.claude/plugins/cache/superpowers-marketplace/superpowers-lab/0.3.0",
+        "version": "0.3.0",
+        "installedAt": "2026-02-12T16:26:55.120Z",
+        "lastUpdated": "2026-02-12T16:26:55.120Z",
+        "gitCommitSha": "897eebf86cf131ef82fe42a6b2991f8ac463f978"
+      }
+    ],
+    "glm-plan-usage@zai-coding-plugins": [
+      {
+        "scope": "user",
+        "installPath": "/Users/jacob.lecoq.ext/.claude/plugins/cache/zai-coding-plugins/glm-plan-usage/0.0.1",
+        "version": "0.0.1",
+        "installedAt": "2026-02-15T02:29:15.384Z",
+        "lastUpdated": "2026-02-15T02:29:15.384Z"
+      }
+    ]
+  }
+}

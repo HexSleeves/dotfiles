@@ -1,58 +1,59 @@
 {{- $interactive := stdinIsATTY -}}
 
-{{- /*
-  Environment Detection Variables
-  ===============================
-  These variables detect the type of environment chezmoi is running in.
-  They are exposed in [data] section for use in other templates.
-
-  - ephemeral: true for cloud/container environments (Codespaces, Docker, Vagrant, etc.)
-               Use to skip expensive operations or persistent state
-  - headless:  true when no display available or connected via SSH
-               Use to skip GUI-related scripts and configurations
-  - personal:  true if this machine should have personal secrets (currently unused)
-               Reserved for future use to control sensitive data deployment
-*/ -}}
-{{- $ephemeral := false -}}
-{{- $personal := false -}}
-{{- $headless := or (env "SSH_CLIENT" | not | not) (not (or (env "DISPLAY") (env "WAYLAND_DISPLAY"))) -}}
-
-{{- $osID := .chezmoi.os -}}
-{{- if (and (eq .chezmoi.os "linux") (hasKey .chezmoi.osRelease "id")) -}}
-    {{-   $osID = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
-{{- end -}}
-
-{{/* detect GitHub codespaces, VSCode remote containers, Docker containers, Multipass VMs, and Vagrant boxes */}}
-{{- if or (env "CODESPACES") (env "REMOTE_CONTAINERS_IPC") (eq .chezmoi.username "root" "ubuntu" "vagrant" "vscode") -}}
-    {{-   $ephemeral = true -}}
-    {{-   $headless = true -}}
-{{- end -}}
-
-{{/* work around unreliable hostname on darwin */}}
+{{/* Work around unreliable hostname on darwin */}}
 {{- $hostname := .chezmoi.hostname -}}
 {{- if eq .chezmoi.os "darwin" -}}
 {{-   $hostname = output "scutil" "--get" "LocalHostName" | trim -}}
 {{- end -}}
 
-{{- if $interactive -}}
-{{-   writeToStdout "💡 Tip: you can re-enter your data with `chezmoi init --data=false`.\n" -}}
+{{- $ephemeral := false -}}
+{{- $personal := contains "noodle" (lower $hostname) -}}
+{{- $hasSSH := or (not (not (env "SSH_CONNECTION"))) (not (not (env "SSH_CLIENT"))) (not (not (env "SSH_TTY"))) -}}
+{{- $hasDisplay := or (not (not (env "DISPLAY"))) (not (not (env "WAYLAND_DISPLAY"))) -}}
+{{- $headless := $hasSSH -}}
+
+{{/* Linux GUI sessions usually expose DISPLAY/WAYLAND. macOS GUI apps do not. */}}
+{{- if and (ne .chezmoi.os "darwin") (not $headless) (not $hasDisplay) -}}
+{{-   $headless = true -}}
 {{- end -}}
 
-{{- $class := promptStringOnce . "machine_class" "Machine class (Personal/Work)" -}}
-{{- $passphrase := keyring "chezmoi" "gpg-passphrase" -}}
+{{/* Detect CI/container/ephemeral users */}}
+{{- if or (env "CODESPACES") (env "REMOTE_CONTAINERS_IPC") (eq .chezmoi.username "root" "ubuntu" "vagrant" "vscode") -}}
+{{-   $ephemeral = true -}}
+{{-   $headless = true -}}
+{{- end -}}
 
-{{- $work := eq $class "Work" -}}
+{{- $osID := .chezmoi.os -}}
+{{- if and (eq .chezmoi.os "linux") (hasKey .chezmoi.osRelease "id") -}}
+{{-   $osID = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
+{{- end -}}
+
+{{- if $interactive -}}
+{{-   writeToStdout "Tip: re-enter prompted data with `chezmoi init --data=false`.\n" -}}
+{{- end -}}
+
+{{/* Class selection: env override -> prompt -> safe non-interactive default */}}
+{{- $class := env "CHEZMOI_MACHINE_CLASS" | trim -}}
+{{- if eq $class "" -}}
+{{-   if $interactive -}}
+{{-     $class = promptStringOnce . "machine_class" "Machine class (Personal/Work)" -}}
+{{-   else if $personal -}}
+{{-     $class = "Personal" -}}
+{{-   else -}}
+{{-     $class = "Work" -}}
+{{-   end -}}
+{{- end -}}
+
+{{- if eq (lower $class) "work" -}}
+{{-   $class = "Work" -}}
+{{- else -}}
+{{-   $class = "Personal" -}}
+{{- end -}}
 
 {{- $email := "lecoqjacob@gmail.com" -}}
-{{- if $work -}}
+{{- if eq $class "Work" -}}
 {{-   $email = "jacob.lecoq.ext@bayer.com" -}}
 {{- end -}}
-
-{{/* encryption = "gpg"
-[gpg]
-    symmetric = true
-    recipient = "33EC7B08ED47E6E3"
-    args = ["--batch", "--passphrase", {{ $passphrase | quote }}, "--no-symkey-cache"] */}}
 
 encryption = "age"
 [age]
@@ -63,6 +64,7 @@ encryption = "age"
     osid = {{ $osID | quote }}
     email = {{ $email | quote }}
     class = {{ $class | quote }}
+    personal = {{ $personal }}
     headless = {{ $headless }}
     ephemeral = {{ $ephemeral }}
     signingkey = "75514B13ECEAA46F3FBADF5333EC7B08ED47E6E3"

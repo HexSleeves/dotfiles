@@ -3,6 +3,7 @@
 # Inspired from https://github.com/mathiasbynens/dotfiles/blob/master/.macos
 
 {{- if and (eq .chezmoi.os "darwin") (not (index . "headless" | default false)) -}}
+{{- $recoveryPhone := env "CHEZMOI_RECOVERY_PHONE" | trim -}}
 
 set -euo pipefail
 
@@ -15,15 +16,18 @@ echo "🍎 Applying macOS defaults..."
 # Enable the sound effects on boot
 sudo nvram StartupMute=%00
 
-# Prevent startup when opening the lid
-sudo nvram BootPreference=%01
-
 # Disable 'Wake for network access' and 'Power Nap'
 sudo pmset -a womp 0
 sudo pmset -a powernap 0
 
-# Set Login Window Text
-sudo defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText 'If you found this computer, please call +1 337 552 8554 or email lecoqjacob@gmail.com'
+# Set Login Window Text (personal machines only)
+{{- if eq .class "Personal" }}
+{{- if ne $recoveryPhone "" }}
+sudo defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText 'If you found this computer, please call {{ $recoveryPhone }} or email {{ .email }}'
+{{- else }}
+sudo defaults write /Library/Preferences/com.apple.loginwindow LoginwindowText 'If you found this computer, please email {{ .email }}'
+{{- end }}
+{{- end }}
 
 # System - Sunday is the first day of the week
 defaults write NSGlobalDomain AppleFirstWeekday -dict 'gregorian' 1
@@ -55,7 +59,7 @@ defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
 # Trackpad, mouse, keyboard, Bluetooth accessories, and input                 #
 ###############################################################################
 
-# Disable "natural" (Lion-style) scrolling
+# Enable natural scrolling
 defaults write NSGlobalDomain com.apple.swipescrolldirection -bool true
 
 # Increase sound quality for Bluetooth headphones/headsets
@@ -110,9 +114,6 @@ defaults write com.apple.screencapture location -string "${HOME}/Desktop"
 # Save screenshots in PNG format
 defaults write com.apple.screencapture type -string "png"
 
-# Disable font smoothing
-defaults -currentHost write -globalDomain AppleFontSmoothing -int 0
-
 ###############################################################################
 # Finder                                                                      #
 ###############################################################################
@@ -153,9 +154,6 @@ defaults write com.apple.finder QLEnableTextSelection -bool true
 
 # Set current folder as default search scope
 defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
-
-# Empty Trash securely by default
-defaults write com.apple.finder EmptyTrashSecurely -bool true
 
 ###############################################################################
 # Dock, Dashboard, and hot corners                                            #

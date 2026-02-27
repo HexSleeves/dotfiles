@@ -2,7 +2,12 @@
 #!/bin/sh
 
 # Setup Tailscale on Linux
-# Enables Tailscale with SSH and exit node support
+# Enables Tailscale with SSH support
+
+set -eu
+
+ADVERTISE_EXIT_NODE="${TAILSCALE_ADVERTISE_EXIT_NODE:-0}"
+AUTH_KEY="${TAILSCALE_AUTH_KEY:-}"
 
 echo "Enabling Tailscale..."
 if command -v systemctl >/dev/null 2>&1; then
@@ -14,22 +19,37 @@ else
 fi
 
 sleep 1
-echo "Starting Tailscale..."
-sudo tailscale up --ssh --advertise-exit-node
+
+if [ "$ADVERTISE_EXIT_NODE" = "1" ]; then
+    TAILSCALE_ARGS="--ssh --advertise-exit-node"
+else
+    TAILSCALE_ARGS="--ssh"
+fi
+
+if [ -n "$AUTH_KEY" ]; then
+    echo "Starting Tailscale with auth key..."
+    sudo tailscale up $TAILSCALE_ARGS --auth-key "$AUTH_KEY"
+else
+    echo "Starting Tailscale..."
+    sudo tailscale up $TAILSCALE_ARGS || true
+fi
 
 address=$(tailscale ip -4)
 echo "Tailscale IPv4 address: $address"
 
-NETDEV=$(ip -o route get 8.8.8.8 | cut -f 5 -d " ")
-if command -v ethtool >/dev/null 2>&1; then
-    sudo ethtool -K $NETDEV rx-udp-gro-forwarding on rx-gro-list off
+if [ "$ADVERTISE_EXIT_NODE" = "1" ]; then
+    NETDEV=$(ip -o route get 8.8.8.8 | cut -f 5 -d " ")
+    if command -v ethtool >/dev/null 2>&1; then
+        sudo ethtool -K "$NETDEV" rx-udp-gro-forwarding on rx-gro-list off
+    fi
+
+    echo "Configuring Tailscale forwarding..."
+    sudo tee /etc/sysctl.d/99-tailscale.conf >/dev/null <<'EOF'
+net.ipv4.ip_forward = 1
+net.ipv6.conf.all.forwarding = 1
+EOF
+    sudo sysctl -p /etc/sysctl.d/99-tailscale.conf
 fi
-
-echo "Configuring Tailscale ipv4..."
-
-echo 'net.ipv4.ip_forward = 1' | sudo tee -a /etc/sysctl.d/99-tailscale.conf
-echo 'net.ipv6.conf.all.forwarding = 1' | sudo tee -a /etc/sysctl.d/99-tailscale.conf
-sudo sysctl -p /etc/sysctl.d/99-tailscale.conf
 
 echo "✅ Tailscale setup complete!"
 {{- else if eq .chezmoi.os "darwin" -}}

@@ -3,6 +3,7 @@
 {{- /* Determine glow binary OS and architecture */ -}}
 {{- $glowArch := "x86_64" -}}
 {{- $glowOS := "Linux" -}}
+{{- $glowVersion := "2.1.1" -}}
 {{- if eq .chezmoi.os "darwin" -}}
 {{-   $glowOS = "Darwin" -}}
 {{-   if eq .chezmoi.arch "arm64" -}}
@@ -23,9 +24,10 @@
         args: ["--rebase"]
 
 {{ if not (index . "ephemeral" | default false) -}}
+{{- $monaspaceVersion := "v1.301" -}}
 ".local/share/fonts/Monaspace":
     type: "archive"
-    url: "https://github.com/githubnext/monaspace/archive/master.zip"
+    url: {{ printf "https://github.com/githubnext/monaspace/archive/refs/tags/%s.zip" $monaspaceVersion | quote }}
     exact: true
     stripComponents: 4
     refreshPeriod: "168h"
@@ -34,7 +36,7 @@
 
 ".local/bin/glow":
     type: "archive-file"
-    url: {{ gitHubLatestReleaseAssetURL "charmbracelet/glow" (printf "glow_*_%s_%s.tar.gz" $glowOS $glowArch) | quote }}
+    url: {{ printf "https://github.com/charmbracelet/glow/releases/download/v%s/glow_%s_%s_%s.tar.gz" $glowVersion $glowVersion $glowOS $glowArch | quote }}
     executable: true
     stripComponents: 1
     path: "glow"

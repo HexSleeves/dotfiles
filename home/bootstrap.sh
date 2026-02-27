@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # Chezmoi Bootstrap Script
-# This script bootstraps a new machine with chezmoi and applies all dotfiles
 
 set -euo pipefail
 
@@ -30,7 +29,7 @@ log_warn() {
 
 # Main execution
 main() {
-    log_info "Starting chezmoi bootstrap..."
+    log_info "Starting chezmoi bootstrap"
 
     # Check if chezmoi is installed
     if ! command -v chezmoi >/dev/null 2>&1; then
@@ -39,28 +38,20 @@ main() {
         exit 1
     fi
 
-    log_info "chezmoi version: $(chezmoi --version | head -1)"
+    log_info "chezmoi version: $(chezmoi --version)"
 
     # Check if chezmoi is initialized
-    if [[ ! -d ~/.local/share/chezmoi/.git ]]; then
+    if ! chezmoi source-path >/dev/null 2>&1; then
         log_error "chezmoi is not initialized. Please run:"
         echo "  chezmoi init git@github.com:HexSleeves/dotfiles.git"
         exit 1
     fi
 
-    # Pull latest changes
-    log_info "Pulling latest changes from remote..."
+    # Pull and apply latest changes
+    log_info "Pulling and applying latest changes from remote"
     chezmoi update
 
-    # Apply all dotfiles
-    log_info "Applying dotfiles..."
-    chezmoi apply
-
-    # Execute run_once scripts
-    log_info "Executing run_once scripts..."
-    chezmoi execute-template --init
-
-    log_success "Bootstrap completed!"
+    log_success "Bootstrap completed"
     echo ""
     log_info "Next steps:"
     echo "  1. Restart your shell to apply all changes"

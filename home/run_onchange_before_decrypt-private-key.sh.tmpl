@@ -1,7 +1,13 @@
 #!/bin/sh
 
-if [ ! -f "/Users/jacob.lecoq.ext/.config/chezmoi/key.txt" ]; then
-    mkdir -p "/Users/jacob.lecoq.ext/.config/chezmoi"
-    chezmoi age decrypt --output "/Users/jacob.lecoq.ext/.config/chezmoi/key.txt" --passphrase "{{ .chezmoi.sourceDir }}/key.txt.age"
-    chmod 600 "/Users/jacob.lecoq.ext/.config/chezmoi/key.txt"
+set -eu
+
+key_dir="{{ .chezmoi.homeDir }}/.config/chezmoi"
+key_path="${key_dir}/key.txt"
+encrypted_key="{{ .chezmoi.sourceDir }}/key.txt.age"
+
+if [ ! -f "$key_path" ]; then
+    mkdir -p "$key_dir"
+    chezmoi age decrypt --output "$key_path" --passphrase "$encrypted_key"
+    chmod 600 "$key_path"
 fi

@@ -13,11 +13,21 @@ CONF_DIR="$HOME/.config/zsh/conf.d"
 # Create conf.d if it doesn't exist (zdotdir external should create .config/zsh)
 mkdir -p "$CONF_DIR"
 
-# Copy ai-providers config if source exists
-SOURCE_FILE="$HOME/.config/dotfiles/ai-providers.local.zsh"
-if [[ -f "$SOURCE_FILE" ]]; then
-    echo "Installing ai-providers.local.zsh to $CONF_DIR..."
-    cp "$SOURCE_FILE" "$CONF_DIR/ai-providers.local.zsh"
-    echo "Installed ai-providers.local.zsh"
-fi
+# Copy optional local zsh configs if present.
+for name in ai-providers.local.zsh nvm.zsh; do
+    SOURCE_FILE="$HOME/.config/dotfiles/$name"
+    if [[ ! -f "$SOURCE_FILE" ]]; then
+        continue
+    fi
+
+    TARGET_NAME="$name"
+    if [[ "$name" == "nvm.zsh" ]]; then
+        # The external zdotdir ignores conf.d/nvm.zsh, so install under a different name.
+        TARGET_NAME="nvm.local.zsh"
+    fi
+
+    echo "Installing $name to $CONF_DIR/$TARGET_NAME..."
+    cp "$SOURCE_FILE" "$CONF_DIR/$TARGET_NAME"
+    echo "Installed $TARGET_NAME"
+done
 {{- end }}

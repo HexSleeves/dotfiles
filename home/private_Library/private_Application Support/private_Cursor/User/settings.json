@@ -113,9 +113,15 @@
     "**/.trunk/*notifications/": true,
     "**/.trunk/*out/": true,
     "**/.trunk/*plugins/": true,
-    "**/node_modules/**": false,
-    "**/dist/**": false,
+    "**/.git/**": true,
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+    "**/coverage/**": true,
+    "**/.next/**": true
   },
+  "typescript.tsserver.maxTsServerMemory": 6144,
+  "typescript.tsserver.useSyntaxServer": "auto",
+  "typescript.disableAutomaticTypeAcquisition": true,
   // =====================================================================================
   // EXPLORER & SEARCH
   // =====================================================================================
@@ -126,6 +132,7 @@
     "**/node_modules": true,
     "**/dist": true,
     "**/coverage": true,
+    "**/.next": true
   },
   // =====================================================================================
   // GIT, GITHUB & GITLENS
@@ -236,7 +243,7 @@
     "editor.defaultFormatter": "mkhl.shfmt",
   },
   "[typescript]": {
-    "editor.defaultFormatter": "biomejs.biome",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
   },
   "[typescriptreact]": {
     "editor.defaultFormatter": "biomejs.biome",
@@ -509,7 +516,6 @@
   "Lua.semantic.keyword": true,
   "Lua.type.inferParamType": true,
   "cursor.enable_agent_window_setting": true,
-  "typescript.tsserver.maxTsServerMemory": 5000,
   "geminicodeassist.displayInlineContextHint": false,
   "Lua.hint.awaitPropagate": true,
   "[dockercompose]": {

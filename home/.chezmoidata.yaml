@@ -4,3 +4,52 @@ githubUser: HexSleeves
 langs:
   python: "3.14"
   mongodb: "7.0"
+platforms:
+  distroFamilyByID:
+    ubuntu: debian
+    debian: debian
+    pop: debian
+    linuxmint: debian
+    elementary: debian
+    zorin: debian
+    arch: arch
+    manjaro: arch
+    endeavouros: arch
+    fedora: rhel
+    rhel: rhel
+    rocky: rhel
+    almalinux: rhel
+    centos: rhel
+    ol: rhel
+bootstrap:
+  packages:
+    darwin:
+      brewfile: Brewfile
+    linux:
+      debian:
+        system:
+          - git
+          - curl
+          - build-essential
+      arch:
+        system:
+          - git
+          - curl
+          - base-devel
+      rhel:
+        system:
+          - git
+          - curl
+          - gcc
+          - gcc-c++
+          - make
+  runtimes:
+    mise:
+      - bun
+      - cargo-binstall
+      - deno
+      - go
+      - lua
+      - neovim
+      - python
+      - yamlfmt

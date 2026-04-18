@@ -1,9 +1,70 @@
+{{- $linuxFamilyByID := dict
+  "ubuntu" "debian"
+  "debian" "debian"
+  "pop" "debian"
+  "linuxmint" "debian"
+  "elementary" "debian"
+  "zorin" "debian"
+  "arch" "arch"
+  "manjaro" "arch"
+  "endeavouros" "arch"
+  "fedora" "rhel"
+  "rhel" "rhel"
+  "rocky" "rhel"
+  "almalinux" "rhel"
+  "centos" "rhel"
+  "ol" "rhel"
+-}}
+{{- $distroFamily := .chezmoi.os -}}
+{{- if and (eq .chezmoi.os "linux") (hasKey .chezmoi.osRelease "id") -}}
+{{-   $distroID := lower .chezmoi.osRelease.id -}}
+{{-   if hasKey $linuxFamilyByID $distroID -}}
+{{-     $distroFamily = index $linuxFamilyByID $distroID -}}
+{{-   else -}}
+{{-     $distroFamily = $distroID -}}
+{{-   end -}}
+{{- end -}}
+{{- $packageManager := "" -}}
+{{- if eq .chezmoi.os "darwin" -}}
+{{-   $packageManager = "brew" -}}
+{{- else if eq $distroFamily "debian" -}}
+{{-   $packageManager = "apt-get" -}}
+{{- else if eq $distroFamily "arch" -}}
+{{-   $packageManager = "pacman" -}}
+{{- else if eq $distroFamily "rhel" -}}
+{{-   if lookPath "dnf" -}}
+{{-     $packageManager = "dnf" -}}
+{{-   else -}}
+{{-     $packageManager = "yum" -}}
+{{-   end -}}
+{{- end -}}
 #!/usr/bin/env bash
 # Bootstrap package installation
 
 set -euo pipefail
 
+CURRENT_OS={{ .chezmoi.os | quote }}
+CURRENT_DISTRO_FAMILY={{ $distroFamily | quote }}
+CURRENT_PACKAGE_MANAGER={{ $packageManager | quote }}
 ALLOW_UNPINNED_INSTALLERS="${CHEZMOI_ALLOW_UNPINNED_INSTALLERS:-0}"
+BREWFILE_TARGET="{{ .chezmoi.homeDir }}/{{ .bootstrap.packages.darwin.brewfile }}"
+BREWFILE_SOURCE="{{ .chezmoi.sourceDir }}/home/{{ .bootstrap.packages.darwin.brewfile }}"
+
+DEBIAN_SYSTEM_PACKAGES=(
+{{- range .bootstrap.packages.linux.debian.system }}
+    {{ . | quote }}
+{{- end }}
+)
+ARCH_SYSTEM_PACKAGES=(
+{{- range .bootstrap.packages.linux.arch.system }}
+    {{ . | quote }}
+{{- end }}
+)
+RHEL_SYSTEM_PACKAGES=(
+{{- range .bootstrap.packages.linux.rhel.system }}
+    {{ . | quote }}
+{{- end }}
+)
 
 log() {
     printf '%s\n' "$*"
@@ -13,8 +74,17 @@ warn() {
     printf 'WARN: %s\n' "$*" >&2
 }
 
+die() {
+    printf 'ERROR: %s\n' "$*" >&2
+    exit 1
+}
+
+have_command() {
+    command -v "$1" >/dev/null 2>&1
+}
+
 install_homebrew_if_missing() {
-    if command -v brew >/dev/null 2>&1; then
+    if have_command brew; then
         log "Homebrew already installed"
         return
     fi
@@ -22,34 +92,70 @@ install_homebrew_if_missing() {
     log "Installing Homebrew"
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-    if [[ -f "/opt/homebrew/bin/brew" ]]; then
-        eval "$(/opt/homebrew/bin/brew shellenv)"
-    elif [[ -f "/usr/local/bin/brew" ]]; then
-        eval "$(/usr/local/bin/brew shellenv)"
+    if have_command brew; then
+        eval "$(brew shellenv)"
     fi
 }
 
+pkg_update() {
+    case "$CURRENT_PACKAGE_MANAGER" in
+        apt-get)
+            sudo apt-get update
+            ;;
+        pacman)
+            sudo pacman -Sy --noconfirm
+            ;;
+        dnf)
+            sudo dnf makecache
+            ;;
+        yum)
+            sudo yum makecache
+            ;;
+    esac
+}
+
+pkg_install() {
+    [[ $# -gt 0 ]] || return 0
+
+    case "$CURRENT_PACKAGE_MANAGER" in
+        apt-get)
+            sudo apt-get install -y "$@"
+            ;;
+        pacman)
+            sudo pacman -S --noconfirm --needed "$@"
+            ;;
+        dnf)
+            sudo dnf install -y "$@"
+            ;;
+        yum)
+            sudo yum install -y "$@"
+            ;;
+        *)
+            die "unsupported package manager: $CURRENT_PACKAGE_MANAGER"
+            ;;
+    esac
+}
+
 install_mise_if_missing() {
-    if command -v mise >/dev/null 2>&1; then
+    if have_command mise; then
         log "mise already installed"
         return
     fi
 
-    {{ if eq .chezmoi.os "darwin" }}
-    if command -v brew >/dev/null 2>&1; then
-        log "Installing mise with Homebrew"
-        brew install mise
-    fi
-    {{ else if eq .chezmoi.os "linux" }}
-    if command -v apt-get >/dev/null 2>&1; then
-        log "Attempting to install mise with apt"
-        if ! sudo apt-get install -y mise; then
-            warn "mise is not available via apt on this system"
-        fi
-    fi
-    {{ end }}
+    case "$CURRENT_PACKAGE_MANAGER" in
+        brew)
+            log "Installing mise with Homebrew"
+            brew install mise
+            ;;
+        apt-get|pacman|dnf|yum)
+            log "Installing mise with $CURRENT_PACKAGE_MANAGER"
+            if ! pkg_install mise; then
+                warn "mise is not available via $CURRENT_PACKAGE_MANAGER on this system"
+            fi
+            ;;
+    esac
 
-    if ! command -v mise >/dev/null 2>&1; then
+    if ! have_command mise; then
         if [[ "$ALLOW_UNPINNED_INSTALLERS" == "1" ]]; then
             log "Installing mise via official installer script"
             curl -fsSL https://mise.run | sh
@@ -60,7 +166,7 @@ install_mise_if_missing() {
 }
 
 install_rustup_if_missing() {
-    if command -v rustup >/dev/null 2>&1; then
+    if have_command rustup; then
         [[ -f "{{ .chezmoi.homeDir }}/.cargo/env" ]] && source "{{ .chezmoi.homeDir }}/.cargo/env"
         log "rustup already installed"
         return
@@ -76,10 +182,10 @@ install_rustup_if_missing() {
 }
 
 install_cargo_binstall_if_missing() {
-    if ! command -v cargo >/dev/null 2>&1; then
+    if ! have_command cargo; then
         return
     fi
-    if command -v cargo-binstall >/dev/null 2>&1; then
+    if have_command cargo-binstall; then
         return
     fi
 
@@ -87,58 +193,86 @@ install_cargo_binstall_if_missing() {
     cargo install cargo-binstall
 }
 
+install_darwin_packages() {
+    log "Detected macOS"
+
+    if ! have_command git; then
+        log "Installing Xcode Command Line Tools"
+        xcode-select --install
+        warn "Complete Xcode Command Line Tools installation, then re-run."
+        exit 1
+    fi
+
+    install_homebrew_if_missing
+
+    if [[ -f "$BREWFILE_TARGET" ]]; then
+        log "Installing packages from $BREWFILE_TARGET"
+        if ! brew bundle install --file="$BREWFILE_TARGET"; then
+            warn "brew bundle failed; continuing bootstrap. Re-run manually with: brew bundle install --file=\"$BREWFILE_TARGET\""
+        fi
+    elif [[ -f "$BREWFILE_SOURCE" ]]; then
+        log "Installing packages from $BREWFILE_SOURCE"
+        if ! brew bundle install --file="$BREWFILE_SOURCE"; then
+            warn "brew bundle failed; continuing bootstrap. Re-run manually with: brew bundle install --file=\"$BREWFILE_SOURCE\""
+        fi
+    else
+        warn "No Brewfile found; skipping brew bundle"
+    fi
+}
+
+install_linux_packages() {
+    local packages=()
+
+    case "$CURRENT_DISTRO_FAMILY" in
+        debian)
+            packages=("${DEBIAN_SYSTEM_PACKAGES[@]}")
+            ;;
+        arch)
+            packages=("${ARCH_SYSTEM_PACKAGES[@]}")
+            ;;
+        rhel)
+            packages=("${RHEL_SYSTEM_PACKAGES[@]}")
+            ;;
+        *)
+            die "unsupported Linux distribution family: $CURRENT_DISTRO_FAMILY"
+            ;;
+    esac
+
+    log "Detected Linux ($CURRENT_DISTRO_FAMILY)"
+    pkg_update
+    pkg_install "${packages[@]}"
+}
+
+install_fzf_key_bindings_if_missing() {
+    local fzf_path
+
+    [[ "$CURRENT_OS" == "darwin" ]] || return 0
+    [[ ! -f "{{ .chezmoi.homeDir }}/.fzf.zsh" ]] || return 0
+    have_command brew || return 0
+
+    fzf_path="$(brew --prefix fzf 2>/dev/null || true)"
+    [[ -n "$fzf_path" ]] || return 0
+
+    "$fzf_path/install" --no-update-rc --completion --key-bindings
+}
+
 log "Bootstrapping packages for '{{ .class }}' profile"
 
-{{ if eq .chezmoi.os "darwin" }}
-log "Detected macOS"
-
-if ! command -v git >/dev/null 2>&1; then
-    log "Installing Xcode Command Line Tools"
-    xcode-select --install
-    warn "Complete Xcode Command Line Tools installation, then re-run."
-    exit 1
-fi
-
-install_homebrew_if_missing
-
-brewfile_target="{{ .chezmoi.homeDir }}/Brewfile"
-brewfile_source="{{ .chezmoi.sourceDir }}/home/Brewfile"
-
-if [[ -f "$brewfile_target" ]]; then
-    log "Installing packages from $brewfile_target"
-    if ! brew bundle install --file="$brewfile_target"; then
-        warn "brew bundle failed; continuing bootstrap. Re-run manually with: brew bundle install --file=\"$brewfile_target\""
-    fi
-elif [[ -f "$brewfile_source" ]]; then
-    log "Installing packages from $brewfile_source"
-    if ! brew bundle install --file="$brewfile_source"; then
-        warn "brew bundle failed; continuing bootstrap. Re-run manually with: brew bundle install --file=\"$brewfile_source\""
-    fi
-else
-    warn "No Brewfile found; skipping brew bundle"
-fi
-{{ else if eq .chezmoi.os "linux" }}
-log "Detected Linux"
-
-if command -v apt-get >/dev/null 2>&1; then
-    sudo apt-get update
-    sudo apt-get install -y git curl build-essential
-elif command -v yum >/dev/null 2>&1; then
-    sudo yum install -y git curl
-elif command -v pacman >/dev/null 2>&1; then
-    sudo pacman -S --noconfirm git curl base-devel
-fi
-{{ end }}
+case "$CURRENT_OS" in
+    darwin)
+        install_darwin_packages
+        ;;
+    linux)
+        install_linux_packages
+        ;;
+    *)
+        die "unsupported operating system: $CURRENT_OS"
+        ;;
+esac
 
 install_mise_if_missing
 install_rustup_if_missing
 install_cargo_binstall_if_missing
-
-{{ if eq .chezmoi.os "darwin" }}
-if [[ ! -f "{{ .chezmoi.homeDir }}/.fzf.zsh" ]] && brew --prefix fzf >/dev/null 2>&1; then
-    fzf_path="$(brew --prefix fzf)"
-    "$fzf_path/install" --no-update-rc --completion --key-bindings
-fi
-{{ end }}
+install_fzf_key_bindings_if_missing
 
 log "Core package installation completed"

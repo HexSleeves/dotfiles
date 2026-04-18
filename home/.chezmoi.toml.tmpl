@@ -1,4 +1,21 @@
 {{- $interactive := stdinIsATTY -}}
+{{- $linuxFamilyByID := dict
+  "ubuntu" "debian"
+  "debian" "debian"
+  "pop" "debian"
+  "linuxmint" "debian"
+  "elementary" "debian"
+  "zorin" "debian"
+  "arch" "arch"
+  "manjaro" "arch"
+  "endeavouros" "arch"
+  "fedora" "rhel"
+  "rhel" "rhel"
+  "rocky" "rhel"
+  "almalinux" "rhel"
+  "centos" "rhel"
+  "ol" "rhel"
+-}}
 
 {{/* Work around unreliable hostname on darwin */}}
 {{- $hostname := .chezmoi.hostname -}}
@@ -24,8 +41,38 @@
 {{- end -}}
 
 {{- $osID := .chezmoi.os -}}
+{{- $distroID := "" -}}
+{{- $distroFamily := .chezmoi.os -}}
 {{- if and (eq .chezmoi.os "linux") (hasKey .chezmoi.osRelease "id") -}}
-{{-   $osID = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
+{{-   $distroID = lower .chezmoi.osRelease.id -}}
+{{-   $osID = printf "%s-%s" .chezmoi.os $distroID -}}
+{{-   if hasKey $linuxFamilyByID $distroID -}}
+{{-     $distroFamily = index $linuxFamilyByID $distroID -}}
+{{-   else -}}
+{{-     $distroFamily = $distroID -}}
+{{-   end -}}
+{{- end -}}
+{{- $packageManager := "" -}}
+{{- if eq .chezmoi.os "darwin" -}}
+{{-   $packageManager = "brew" -}}
+{{- else if eq $distroFamily "debian" -}}
+{{-   $packageManager = "apt-get" -}}
+{{- else if eq $distroFamily "arch" -}}
+{{-   $packageManager = "pacman" -}}
+{{- else if eq $distroFamily "rhel" -}}
+{{-   if lookPath "dnf" -}}
+{{-     $packageManager = "dnf" -}}
+{{-   else -}}
+{{-     $packageManager = "yum" -}}
+{{-   end -}}
+{{- end -}}
+{{- $homebrewPrefix := "" -}}
+{{- if eq .chezmoi.os "darwin" -}}
+{{-   if eq .chezmoi.arch "arm64" -}}
+{{-     $homebrewPrefix = "/opt/homebrew" -}}
+{{-   else -}}
+{{-     $homebrewPrefix = "/usr/local" -}}
+{{-   end -}}
 {{- end -}}
 
 {{- if $interactive -}}
@@ -61,7 +108,12 @@ encryption = "age"
     recipient = "age1phy6rxatc2gzct0xw5mqmc0gtnumwt4qzwc48372k3aj56jmt5rs3hftdz"
 
 [data]
+    os = {{ .chezmoi.os | quote }}
     osid = {{ $osID | quote }}
+    distro = {{ $distroID | quote }}
+    distrofamily = {{ $distroFamily | quote }}
+    packagemanager = {{ $packageManager | quote }}
+    homebrewprefix = {{ $homebrewPrefix | quote }}
     email = {{ $email | quote }}
     class = {{ $class | quote }}
     personal = {{ $personal }}

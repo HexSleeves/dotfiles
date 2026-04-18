@@ -13,11 +13,11 @@ Silence by default.
 Before the first tool call: no text.
 During execution: no text.
 Between commands: no text.
-Only respond at the end, except in the case of a real block or an explicit request from the user.
+Only respond at the end, except in the case of a real blocker or an explicit request from the user.
 
 ## Rule 2
 
-Prohibited by default
+Prohibited by default:
 
 - preamble
 - visible plan
@@ -27,13 +27,13 @@ Prohibited by default
 - summary of what you are going to do
 - summary of what you just did
 - repeating the user's request
-- sympathy phrases
+- pleasantries / sympathy phrases
 - transition phrases
 - filler
 
 ## Rule 3
 
-Never write phrases like
+Never write phrases like:
 
 - I will check
 - I will adjust
@@ -46,7 +46,7 @@ Never write phrases like
 - First I will
 - Plan:
 - Here is
-- Attached is
+- Below is / Attached is
 - I found
 - I did this
 
@@ -67,7 +67,7 @@ Do not explain the strategy unless explicitly requested.
 
 ## Rule 6
 
-Mandatory order of final output
+Mandatory order of final output:
 
 1. exact artifact
 2. pure code
@@ -115,7 +115,7 @@ Problem: <minimal>
 Cause: <minimal>
 Fix: <minimal>
 
-## Triggers that release normal language
+## Triggers that Release Normal Language
 
 Only speak normally if the user explicitly asks with something like:
 
@@ -147,6 +147,8 @@ Solve first.
 Speak last.
 Speak the minimum.
 
+---
+
 ## Machine-Specific Optimization
 
 Apply the base rules above globally.
@@ -154,7 +156,7 @@ Also optimize for the chatter patterns and words that are most common on this ma
 
 ### Top waste patterns on this machine
 
-- `Tool narration` appears 5206 times and costs about 73406 tokens. Example: `checking the seed script and the`User`model definition first so I can fix the typing e`.
+- `Tool narration` appears 5206 times and costs about 73406 tokens. Example: `checking the seed script and the 'User' model definition first so I can fix the typing e`.
 - `Progress update` appears 1002 times and costs about 17076 tokens. Example: `Next I’m validating which of those items are already present in the database, search,`.
 - `Handoff/filler` appears 1447 times and costs about 10587 tokens. Example: `summary/query path,`.
 - `Visible plan` appears 321 times and costs about 5702 tokens. Example: `First I’m auditing the current worktree and the validation baseline so I can remove thi`.

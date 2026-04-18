@@ -1,7 +1,20 @@
 # Setup fzf
 # ---------
-if [[ ! "$PATH" == */opt/homebrew/opt/fzf/bin* ]]; then
-  PATH="${PATH:+${PATH}:}/opt/homebrew/opt/fzf/bin"
+__chezmoi_fzf_prefix=""
+if command -v brew >/dev/null 2>&1; then
+  __chezmoi_fzf_prefix="$(brew --prefix fzf 2>/dev/null || true)"
+elif [[ -d "/opt/homebrew/opt/fzf" ]]; then
+  __chezmoi_fzf_prefix="/opt/homebrew/opt/fzf"
+elif [[ -d "/usr/local/opt/fzf" ]]; then
+  __chezmoi_fzf_prefix="/usr/local/opt/fzf"
 fi
 
-source <(fzf --zsh)
+if [[ -n "$__chezmoi_fzf_prefix" && -d "$__chezmoi_fzf_prefix/bin" && ":$PATH:" != *":$__chezmoi_fzf_prefix/bin:"* ]]; then
+  PATH="$__chezmoi_fzf_prefix/bin${PATH:+:${PATH}}"
+fi
+
+if command -v fzf >/dev/null 2>&1; then
+  source <(fzf --zsh)
+fi
+
+unset __chezmoi_fzf_prefix

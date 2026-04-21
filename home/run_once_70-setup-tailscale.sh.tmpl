@@ -4,6 +4,13 @@
 # Setup Tailscale on Linux
 # Enables Tailscale with SSH support
 
+# Skip in containers/distrobox where systemd isn't available
+if [ -f "/run/.containerenv" ] || [ -f "/.dockerenv" ] || grep -qE '(docker|podman|distrobox)' /proc/1/cgroup 2>/dev/null; then
+    echo "Skipping Tailscale setup (running in a container/distrobox)"
+    echo "Install Tailscale on the host system instead."
+    exit 0
+fi
+
 set -eu
 
 ADVERTISE_EXIT_NODE="${TAILSCALE_ADVERTISE_EXIT_NODE:-0}"

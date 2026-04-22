@@ -9,6 +9,8 @@ fi
 LIST_FILE="$HOME/.cursor/extensions/list.txt"
 mkdir -p "$(dirname "$LIST_FILE")"
 
-cursor --list-extensions | sort > "$LIST_FILE"
+TMP=$(mktemp)
+cursor --list-extensions | sort > "$TMP"
+mv "$TMP" "$LIST_FILE"
 COUNT=$(wc -l < "$LIST_FILE" | tr -d ' ')
 echo "Saved $COUNT extensions to $LIST_FILE"

@@ -7,6 +7,7 @@ export JUST_UNSTABLE := "true"
 
 mod op '.justfiles/1password.justfile'
 mod claude '.justfiles/claude.justfile'
+mod chezmoi '.justfiles/chezmoi.justfile'
 mod codex '.justfiles/codex.justfile'
 mod distrobox '.justfiles/distrobox.justfile'
 mod gemini '.justfiles/gemini.justfile'
@@ -31,6 +32,7 @@ HOST := `hostname -s`
     just --fmt --unstable
     just op fmt
     just claude fmt
+    just chezmoi fmt
     just codex fmt
     just gemini fmt
     just mise fmt

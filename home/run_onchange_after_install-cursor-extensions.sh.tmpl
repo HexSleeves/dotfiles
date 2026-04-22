@@ -15,7 +15,10 @@ if [[ ! -f "$LIST_FILE" ]]; then
     exit 0
 fi
 
-INSTALLED=$(cursor --list-extensions 2>/dev/null)
+if ! INSTALLED=$(cursor --list-extensions 2>&1); then
+    echo "cursor --list-extensions failed, skipping" >&2
+    exit 0
+fi
 
 while IFS= read -r ext; do
     [[ -z "$ext" || "$ext" == \#* ]] && continue

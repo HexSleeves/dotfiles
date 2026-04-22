@@ -172,13 +172,35 @@ install_rustup_if_missing() {
         return
     fi
 
-    if [[ "$ALLOW_UNPINNED_INSTALLERS" == "1" ]]; then
-        log "Installing rustup"
-        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-        [[ -f "{{ .chezmoi.homeDir }}/.cargo/env" ]] && source "{{ .chezmoi.homeDir }}/.cargo/env"
-    else
-        warn "Skipping rustup installer script. Set CHEZMOI_ALLOW_UNPINNED_INSTALLERS=1 to allow it."
+    log "Installing rustup"
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    [[ -f "{{ .chezmoi.homeDir }}/.cargo/env" ]] && source "{{ .chezmoi.homeDir }}/.cargo/env"
+}
+
+install_uv_if_missing() {
+    if have_command uv; then
+        log "uv already installed"
+        return
     fi
+
+    log "Installing uv"
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    export PATH="{{ .chezmoi.homeDir }}/.local/bin:$PATH"
+}
+
+install_ruff_if_missing() {
+    if have_command ruff; then
+        log "ruff already installed"
+        return
+    fi
+
+    if ! have_command uv; then
+        warn "uv not found; skipping ruff install"
+        return
+    fi
+
+    log "Installing ruff via uv"
+    uv tool install ruff
 }
 
 install_cargo_binstall_if_missing() {
@@ -272,6 +294,8 @@ esac
 
 install_mise_if_missing
 install_rustup_if_missing
+install_uv_if_missing
+install_ruff_if_missing
 install_cargo_binstall_if_missing
 install_fzf_key_bindings_if_missing
 

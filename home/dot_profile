@@ -1,2 +1,1 @@
-. "$HOME/.local/share/cargo/env"
-. "$HOME/.local/bin/env"
+[ -f "$HOME/.config/shell/profile.sh" ] && . "$HOME/.config/shell/profile.sh"

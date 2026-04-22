@@ -15,7 +15,7 @@ pre_sudo = true
 # sudo_command = "sudo"
 
 # Disable specific steps - same options as the command line flag
-disable = ["system", "rustup", "pnpm", "nix", "chezmoi"]
+disable = ["system", "nix", "chezmoi", "restarts"]
 
 # Ignore failures for these steps
 ignore_failures = ["containers"]
@@ -93,8 +93,8 @@ notify_end = "on_failure"
 
 # Custom commands
 [commands]
-"Codex CLI" = "bun update -g @openai/codex"
-"OpenCode CLI" = "opencode upgrade"
+"mise plugins" = "mise plugins update"
+"uv tools" = "uv tool upgrade --all"
 
 
 [python]

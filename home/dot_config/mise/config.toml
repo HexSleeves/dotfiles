@@ -5,7 +5,10 @@ deno = "latest"
 go             = "latest"
 lua = "latest"
 neovim         = "nightly"
+node = "lts"
+pnpm = "latest"
 python = "latest"
+usage = "latest"
 yamlfmt        = "latest"
 
 [settings]

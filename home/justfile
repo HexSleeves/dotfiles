@@ -8,7 +8,9 @@ export JUST_UNSTABLE := "true"
 mod op '.justfiles/1password.justfile'
 mod claude '.justfiles/claude.justfile'
 mod codex '.justfiles/codex.justfile'
+mod distrobox '.justfiles/distrobox.justfile'
 mod gemini '.justfiles/gemini.justfile'
+mod local-ai '.justfiles/local-ai.justfile'
 mod mise '.justfiles/mise.justfile'
 mod opencode '.justfiles/opencode.justfile'
 

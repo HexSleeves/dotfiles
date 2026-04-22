@@ -1,7 +1,2 @@
 export ZDOTDIR=~/.config/zsh
 [[ -f $ZDOTDIR/.zshenv ]] && . $ZDOTDIR/.zshenv
-
-. "$HOME/.local/share/../bin/env"
-
-# opencode
-export PATH=/Users/lecoqjacob/.opencode/bin:$PATH

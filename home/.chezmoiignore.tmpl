@@ -1,0 +1,21 @@
+key.txt.age
+bootstrap
+bootstrap/**
+bootstrap.sh
+
+.oh-my-zsh/cache/**
+.oh-my-zsh/custom/themes/powerlevel10k/**/*.zwc
+
+docs
+install.sh
+LICENSE
+README.md
+
+{{- if ne .chezmoi.os "linux" }}
+.config/local-ai.env
+.local/bin/local-ai-serve
+.config/systemd/user/local-ai.service
+.config/systemd/user/distrobox-upgrade-fedora-dev.service
+.config/systemd/user/distrobox-upgrade-fedora-dev.timer
+.config/Code - Insiders/User/settings.json
+{{- end }}

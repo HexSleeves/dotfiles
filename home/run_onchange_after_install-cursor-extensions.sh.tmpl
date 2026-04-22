@@ -1,6 +1,6 @@
 #!/bin/bash
-{{- if not .headless }}
 # Hash: {{ include "dot_cursor/extensions/list.txt" | sha256sum }}
+{{- if not .headless }}
 
 set -euo pipefail
 
@@ -18,7 +18,7 @@ fi
 INSTALLED=$(cursor --list-extensions 2>/dev/null)
 
 while IFS= read -r ext; do
-    [[ -z "$ext" ]] && continue
+    [[ -z "$ext" || "$ext" == \#* ]] && continue
     if ! echo "$INSTALLED" | grep -qx "$ext"; then
         echo "Installing $ext..."
         cursor --install-extension "$ext"

@@ -12,7 +12,7 @@
   "workbench.tree.indent": 11,
   "workbench.tree.renderIndentGuides": "always",
   "workbench.colorCustomizations": {
-    "tree.indentGuidesStroke": "#999999"
+    "tree.indentGuidesStroke": "#999999",
   },
   "workbench.editor.decorations.colors": true,
   "workbench.editor.pinnedTabSizing": "shrink",
@@ -81,7 +81,7 @@
   // EDITOR — FORMATTING & ON SAVE
   // =====================================================================================
   "editor.codeActionsOnSave": {
-    "source.fixAll": "always"
+    "source.fixAll": "always",
   },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnPaste": false,
@@ -97,11 +97,11 @@
       "rules": {
         "function.declaration": {
           "foreground": "#2FDE73",
-          "fontStyle": "bold italic"
+          "fontStyle": "bold italic",
         },
-        "function": "#2FDE73"
-      }
-    }
+        "function": "#2FDE73",
+      },
+    },
   },
 
   // =====================================================================================
@@ -124,7 +124,7 @@
     "**/.trunk/*logs/": true,
     "**/.trunk/*notifications/": true,
     "**/.trunk/*out/": true,
-    "**/.trunk/*plugins/": true
+    "**/.trunk/*plugins/": true,
   },
   "files.watcherExclude": {
     "**/.git/**": true,
@@ -136,7 +136,7 @@
     "**/.trunk/*plugins/": true,
     "**/coverage/**": true,
     "**/dist/**": true,
-    "**/node_modules/**": true
+    "**/node_modules/**": true,
   },
 
   // =====================================================================================
@@ -156,14 +156,14 @@
     "*.ts": "${capture}.js",
     "*.tsx": "${capture}.ts",
     "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, bun.lockb, bun.lock",
-    "tsconfig.json": "tsconfig.*.json"
+    "tsconfig.json": "tsconfig.*.json",
   },
   "explorer.sortOrder": "type",
   "search.exclude": {
     "**/.next": true,
     "**/coverage": true,
     "**/dist": true,
-    "**/node_modules": true
+    "**/node_modules": true,
   },
 
   // =====================================================================================
@@ -185,7 +185,7 @@
   // =====================================================================================
   "gitlens.advanced.messages": {
     "suppressLineUncommittedWarning": true,
-    "suppressIntegrationDisconnectedTooManyFailedRequestsWarning": true
+    "suppressIntegrationDisconnectedTooManyFailedRequestsWarning": true,
   },
   "gitlens.ai.gitkraken.model": "gemini:gemini-2.5-flash",
   "gitlens.ai.model": "gitkraken",
@@ -219,7 +219,7 @@
   // GO TOOLING
   // =====================================================================================
   "go.alternateTools": {
-    "customFormatter": "/Users/jacob.lecoq.ext/.local/share/mise/shims/gofmt"
+    "customFormatter": "/Users/jacob.lecoq.ext/.local/share/mise/shims/gofmt",
   },
   "go.inlayHints.compositeLiteralTypes": true,
   "go.inlayHints.constantValues": true,
@@ -239,13 +239,13 @@
   "Lua.type.inferParamType": true,
   "Lua.workspace.library": [
     "~/.local/share/nvim/lazy/",
-    "~/.local/share/nvim/mason"
+    "~/.local/share/nvim/mason",
   ],
 
   // =====================================================================================
   // PYTHON
   // =====================================================================================
-  "python.defaultInterpreterPath": "/Users/lecoqjacob/.local/share/mise/installs/python/3.14.3/bin/python",
+  "python.defaultInterpreterPath": "/Users/lecoqjacob/.local/share/mise/installs/python/latest/bin/python",
   "python.terminal.useEnvFile": true,
 
   // =====================================================================================
@@ -302,7 +302,7 @@
     "yankee": "linux",
     "yankee-jig.exe.xyz": "linux",
     "vs3.spacecats.dev": "linux",
-    "safe-tide": "linux"
+    "safe-tide": "linux",
   },
 
   // =====================================================================================
@@ -312,7 +312,7 @@
     "*": false,
     "markdown": true,
     "plaintext": false,
-    "scminput": false
+    "scminput": false,
   },
 
   // =====================================================================================
@@ -355,7 +355,7 @@
     "npm test",
     "nx",
     "nx run",
-    "tsc"
+    "tsc",
   ],
   "kilo-code.debug": false,
   "kilo-code.deniedCommands": [],
@@ -377,7 +377,7 @@
     "Codex",
     "Codex Extension",
     "Export as Markdown",
-    "Roo Code"
+    "Roo Code",
   ],
   "traycer.enableAutoAnalysis": false,
   "traycer.enableCommentsHighlighting": true,
@@ -394,7 +394,7 @@
       "fontStyle": "Italic",
       "highlight": "Ultra Violet",
       "main": "Sakura",
-      "syntaxBrightness": "Dimmed"
+      "syntaxBrightness": "Dimmed",
     },
     "themeSettings": {
       "background": "Grey",
@@ -404,8 +404,8 @@
       "fontStyle": "Italic",
       "highlight": "Ultra Violet",
       "main": "Bumblebee",
-      "syntaxBrightness": "Normal"
-    }
+      "syntaxBrightness": "Normal",
+    },
   },
   "oneDarkPro.bold": true,
 
@@ -423,7 +423,7 @@
     "!**/node_modules",
     "!**/.git",
     "!**/vendor",
-    "!**/*.mdc"
+    "!**/*.mdc",
   ],
   "playwright.reuseBrowser": true,
   "playwright.showTrace": false,
@@ -463,89 +463,89 @@
     "type-alias-with-multiple-generics",
     "type-predicate",
     "typeof",
-    "nested-conditional-type"
+    "nested-conditional-type",
   ],
-  "update.releaseTrack": "prerelease",
+  "update.releaseTrack": "dev",
 
   // =====================================================================================
   // LANGUAGE OVERRIDES — BY FILETYPE
   // =====================================================================================
   "[astro]": {
-    "editor.defaultFormatter": "astro-build.astro-vscode"
+    "editor.defaultFormatter": "astro-build.astro-vscode",
   },
   "[cpp]": {
-    "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+    "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
   },
   "[css]": {
-    "editor.defaultFormatter": "denoland.vscode-deno"
+    "editor.defaultFormatter": "denoland.vscode-deno",
   },
   "[dockercompose]": {
     "editor.autoIndent": "advanced",
     "editor.defaultFormatter": "redhat.vscode-yaml",
     "editor.insertSpaces": true,
-    "editor.tabSize": 2
+    "editor.tabSize": 2,
   },
   "[dotenv]": {
-    "editor.defaultFormatter": "foxundermoon.shell-format"
+    "editor.defaultFormatter": "foxundermoon.shell-format",
   },
   "[github-actions-workflow]": {
-    "editor.defaultFormatter": "redhat.vscode-yaml"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
   },
   "[go]": {
-    "editor.defaultFormatter": "golang.go"
+    "editor.defaultFormatter": "golang.go",
   },
   "[go.mod]": {
-    "editor.defaultFormatter": "golang.go"
+    "editor.defaultFormatter": "golang.go",
   },
   "[ignore]": {
-    "editor.defaultFormatter": "foxundermoon.shell-format"
+    "editor.defaultFormatter": "foxundermoon.shell-format",
   },
   "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
   },
   "[javascriptreact]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
   },
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.quickSuggestions": {
-      "strings": true
+      "strings": true,
     },
-    "editor.suggest.insertMode": "replace"
+    "editor.suggest.insertMode": "replace",
   },
   "[lua]": {
-    "editor.defaultFormatter": "JohnnyMorganz.stylua"
+    "editor.defaultFormatter": "JohnnyMorganz.stylua",
   },
   "[markdown]": {
     "editor.defaultFormatter": "trunk.io",
-    "editor.unicodeHighlight.invisibleCharacters": true
+    "editor.unicodeHighlight.invisibleCharacters": true,
   },
   "[plaintext]": {
-    "editor.unicodeHighlight.invisibleCharacters": true
+    "editor.unicodeHighlight.invisibleCharacters": true,
   },
   "[postcss]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
   },
   "[python]": {
-    "editor.defaultFormatter": "trunk.io"
+    "editor.defaultFormatter": "trunk.io",
   },
   "[rust]": {
-    "editor.defaultFormatter": "rust-lang.rust-analyzer"
+    "editor.defaultFormatter": "rust-lang.rust-analyzer",
   },
   "[shellscript]": {
-    "editor.defaultFormatter": "mkhl.shfmt"
+    "editor.defaultFormatter": "mkhl.shfmt",
   },
   "[toml]": {
-    "editor.defaultFormatter": "tamasfe.even-better-toml"
+    "editor.defaultFormatter": "tamasfe.even-better-toml",
   },
   "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "oxc.oxc-vscode",
   },
   "[yaml]": {
-    "editor.defaultFormatter": "redhat.vscode-yaml"
+    "editor.defaultFormatter": "redhat.vscode-yaml",
   },
   "[jinja-html]": {
-    "editor.defaultFormatter": "monosans.djlint"
+    "editor.defaultFormatter": "monosans.djlint",
   },
   "cSpell.userWords": [
     "carc",
@@ -554,17 +554,22 @@
     "rarc",
     "timesheet",
     "timesheets",
-    "timespan"
+    "timespan",
   ],
   "makefile.configureOnOpen": false,
   "markdown.updateLinksOnFileMove.enabled": "prompt",
   "terminal.integrated.commandsToSkipShell": [
     "kilo-code.new.agentManagerOpen",
-    "kilo-code.new.agentManager.showTerminal"
+    "kilo-code.new.agentManager.showTerminal",
+    "kilo-code.new.agentManager.runScript",
   ],
   "kilo-code.new.autocomplete.enableAutoTrigger": true,
   "kilo-code.new.autocomplete.enableSmartInlineTaskKeybinding": true,
   "kilo-code.new.autocomplete.enableChatAutocomplete": true,
   "kilo-code.new.browserAutomation.enabled": true,
-  "cursorpyright.nodeExecutable": "/Users/lecoqjacob/.xdg/fnm_multishells/95356_1774832918379/bin/node"
+  "cursorpyright.nodeExecutable": "/Users/lecoqjacob/.xdg/fnm_multishells/95356_1774832918379/bin/node",
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode",
+  },
+  "update.mode": "silentlyApplyOnQuit",
 }

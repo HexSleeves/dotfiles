@@ -1,0 +1,29 @@
+#!/bin/bash
+{{- if not .headless }}
+# Hash: {{ include "dot_cursor/extensions/list.txt" | sha256sum }}
+
+set -euo pipefail
+
+if ! command -v cursor &>/dev/null; then
+    echo "cursor not in PATH, skipping extension install"
+    exit 0
+fi
+
+LIST_FILE="$HOME/.cursor/extensions/list.txt"
+if [[ ! -f "$LIST_FILE" ]]; then
+    echo "No extension list at $LIST_FILE, skipping"
+    exit 0
+fi
+
+INSTALLED=$(cursor --list-extensions 2>/dev/null)
+
+while IFS= read -r ext; do
+    [[ -z "$ext" ]] && continue
+    if ! echo "$INSTALLED" | grep -qx "$ext"; then
+        echo "Installing $ext..."
+        cursor --install-extension "$ext"
+    fi
+done < "$LIST_FILE"
+
+echo "Cursor extension sync complete"
+{{- end }}

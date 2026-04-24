@@ -1,7 +1,9 @@
 # shellcheck shell=sh
 # Shared login environment for login shells.
 
-if command -v brew >/dev/null 2>&1; then
+if [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+elif command -v brew >/dev/null 2>&1; then
   eval "$(brew shellenv)"
 fi
 

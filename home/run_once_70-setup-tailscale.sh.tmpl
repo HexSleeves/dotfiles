@@ -16,6 +16,11 @@ set -eu
 ADVERTISE_EXIT_NODE="${TAILSCALE_ADVERTISE_EXIT_NODE:-0}"
 AUTH_KEY="${TAILSCALE_AUTH_KEY:-}"
 
+if ! command -v tailscale >/dev/null 2>&1; then
+    echo "Tailscale not found. Installing..."
+    curl -fsSL https://tailscale.com/install.sh | sh
+fi
+
 echo "Enabling Tailscale..."
 if command -v systemctl >/dev/null 2>&1; then
     sudo systemctl enable tailscaled

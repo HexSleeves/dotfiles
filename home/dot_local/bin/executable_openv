@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Usage: eval $(openv TOKEN_NAME)
+# Injects a token from the 1Password Developer vault into the current shell session.
+set -euo pipefail
+
+VAULT="Developer"
+
+if [[ $# -eq 0 ]]; then
+  echo "Usage: eval \$(openv TOKEN_NAME)" >&2
+  echo "       openv --list" >&2
+  exit 1
+fi
+
+if [[ "$1" == "--list" || "$1" == "-l" ]]; then
+  op item list --vault "$VAULT" 2>&1
+  exit 0
+fi
+
+name="$1"
+value=$(op item get "$name" --vault "$VAULT" --fields password 2>/dev/null)
+
+if [[ -z "$value" ]]; then
+  echo "error: '$name' not found in $VAULT vault (run 'openv --list' to see available tokens)" >&2
+  exit 1
+fi
+
+printf 'export %s=%q\n' "$name" "$value"

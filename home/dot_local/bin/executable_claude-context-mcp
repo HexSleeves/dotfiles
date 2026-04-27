@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+set -a
+. "$HOME/.context/.env"
+set +a
+
+exec npx -y @zilliz/claude-context-mcp@latest

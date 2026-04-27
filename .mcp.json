@@ -1,7 +1,8 @@
 {
   "mcpServers": {
-    "forge_extension": {
-      "url": "http://localhost:53747/mcp"
+    "claude-context": {
+      "command": "/home/lecoqjacob/.local/bin/claude-context-mcp",
+      "args": []
     }
   }
 }

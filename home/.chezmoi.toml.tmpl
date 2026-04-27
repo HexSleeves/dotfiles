@@ -100,6 +100,8 @@
 {{- $email := "lecoqjacob@gmail.com" -}}
 
 encryption = "age"
+sourceDir = {{ joinPath .chezmoi.homeDir ".local/share/chezmoi" | quote }}
+cacheDir = {{ joinPath .chezmoi.homeDir ".cache/chezmoi" | quote }}
 [age]
     identity = "~/.config/chezmoi/key.txt"
     recipient = "age1phy6rxatc2gzct0xw5mqmc0gtnumwt4qzwc48372k3aj56jmt5rs3hftdz"

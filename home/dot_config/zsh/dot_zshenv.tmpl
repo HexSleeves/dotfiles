@@ -1,12 +1,12 @@
-export XDG_CONFIG_HOME="{{ .chezmoi.homeDir }}/.config"
-export XDG_DATA_HOME="{{ .chezmoi.homeDir }}/.local/share"
-export XDG_CACHE_HOME="{{ .chezmoi.homeDir }}/.cache"
-export XDG_STATE_HOME="{{ .chezmoi.homeDir }}/.local/state"
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_STATE_HOME="$HOME/.local/state"
 
-export ZDOTDIR="{{ .chezmoi.homeDir }}/.config/zsh"
-export GNUPGHOME="{{ .chezmoi.homeDir }}/.local/share/gnupg"
+export ZDOTDIR="$HOME/.config/zsh"
+export GNUPGHOME="$HOME/.local/share/gnupg"
 
-export ZSH_CACHE_DIR="{{ .chezmoi.homeDir }}/.cache/zsh"
-export ZSH_DATA_DIR="{{ .chezmoi.homeDir }}/.local/share/zsh"
+export ZSH_CACHE_DIR="$HOME/.cache/zsh"
+export ZSH_DATA_DIR="$HOME/.local/share/zsh"
 
-export PATH="{{ .chezmoi.homeDir }}/.local/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"

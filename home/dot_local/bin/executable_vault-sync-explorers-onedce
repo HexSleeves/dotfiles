@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+VAULT_ADDR="https://vault.agro.services"
+VAULT_PATH="secret/explorers_onedce"
+OUTPUT_DIR="${HOME}/.vault-secrets/explorers_onedce"
+
+export VAULT_ADDR
+
+# Parse flags
+SKIP_LOGIN=false
+for arg in "$@"; do
+  case "${arg}" in
+    --skip-login) SKIP_LOGIN=true ;;
+    -h|--help)
+      echo "Usage: vault-sync-explorers-onedce [--skip-login]"
+      echo ""
+      echo "Syncs all secrets from Vault path ${VAULT_PATH}/ to ${OUTPUT_DIR}/"
+      echo ""
+      echo "Options:"
+      echo "  --skip-login  Skip OIDC login (use existing token)"
+      exit 0
+      ;;
+  esac
+done
+
+# --- Login ---
+if [[ "${SKIP_LOGIN}" == false ]]; then
+  echo "Logging in to Vault via OIDC..."
+  vault login -method=oidc > /dev/null 2>&1 || {
+    echo "ERROR: Vault login failed" >&2
+    exit 1
+  }
+  echo "Login successful."
+else
+  # Verify existing token
+  if ! vault token lookup > /dev/null 2>&1; then
+    echo "ERROR: No valid token. Run without --skip-login or run: vault login -method=oidc" >&2
+    exit 1
+  fi
+  echo "Using existing Vault token."
+fi
+
+# --- Prepare output ---
+mkdir -p "${OUTPUT_DIR}"
+chmod 700 "${OUTPUT_DIR}"
+
+# --- Recursive sync ---
+COUNT=0
+
+sync_path() {
+  local path="$1"
+
+  local entries
+  entries=$(vault kv list -format=json "${path}" 2>/dev/null) || return 0
+
+  local entry
+  while IFS= read -r entry; do
+    local full_path="${path}/${entry%/}"
+
+    if [[ "${entry}" == */ ]]; then
+      # Directory — create dir and recurse
+      local rel="${full_path#${VAULT_PATH}/}"
+      mkdir -p "${OUTPUT_DIR}/${rel}"
+      sync_path "${full_path}"
+    else
+      # Leaf secret — fetch and save
+      local rel="${full_path#${VAULT_PATH}/}"
+      echo "  Syncing: ${rel}"
+
+      local secret_json
+      secret_json=$(vault kv get -format=json "${full_path}" 2>/dev/null) || {
+        echo "    WARNING: Failed to read ${full_path}" >&2
+        continue
+      }
+
+      # Extract data: KV v2 → .data.data, KV v1 → .data
+      local data
+      data=$(echo "${secret_json}" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+if 'data' in d and isinstance(d['data'], dict) and 'data' in d['data']:
+    print(json.dumps(d['data']['data'], indent=2))
+else:
+    print(json.dumps(d['data'], indent=2))
+" 2>/dev/null) || {
+        echo "    WARNING: Failed to parse ${full_path}" >&2
+        continue
+      }
+
+      local file_path="${OUTPUT_DIR}/${rel}.json"
+      mkdir -p "$(dirname "${file_path}")"
+      echo "${data}" > "${file_path}"
+      chmod 600 "${file_path}"
+      COUNT=$((COUNT + 1))
+    fi
+  done < <(echo "${entries}" | python3 -c "import json,sys; [print(e) for e in json.load(sys.stdin)]")
+}
+
+echo "Syncing secrets from ${VAULT_PATH}/ to ${OUTPUT_DIR}/"
+echo ""
+sync_path "${VAULT_PATH}"
+
+echo ""
+echo "Done! ${COUNT} secrets synced to ${OUTPUT_DIR}/"
+echo ""
+echo "Files:"
+find "${OUTPUT_DIR}" -name '*.json' -type f | sort | sed 's|'"${OUTPUT_DIR}"'/|  |'

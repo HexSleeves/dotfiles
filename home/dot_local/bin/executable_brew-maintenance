@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v brew >/dev/null 2>&1; then
+  echo "error: brew not found" >&2
+  exit 1
+fi
+
+echo "==> brew update"
+brew update
+
+echo "==> outdated"
+brew outdated || true
+
+echo "==> upgrade formulae"
+brew upgrade
+
+echo "==> upgrade casks"
+brew upgrade --cask --greedy || true
+
+echo "==> autoremove"
+brew autoremove
+
+echo "==> cleanup --prune=all -s"
+brew cleanup --prune=all -s
+
+echo "==> rm -rf cache"
+rm -rf "$(brew --cache)"
+
+echo "==> doctor"
+brew doctor || true
+
+echo "done"

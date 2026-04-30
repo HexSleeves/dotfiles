@@ -1,0 +1,251 @@
+#!/usr/bin/env bash
+#
+# Bulk-delete GitHub Actions workflow runs with filters and parallelism.
+#
+# Wraps `gh run list` + `gh run delete`. Paginates past gh's per-call cap so
+# you can purge >1000 runs in a single invocation. Supports filtering by
+# status, conclusion, workflow file, branch, and age, and parallelizes the
+# delete loop across N workers.
+#
+# Examples:
+#   # Dry-run: show every cancelled run that would be deleted
+#   scripts/gha-cleanup.sh --status cancelled --dry-run
+#
+#   # Delete all failed runs older than 30 days, 8 parallel workers
+#   scripts/gha-cleanup.sh --status failure --older-than 30d -j 8 --yes
+#
+#   # Purge every run for a retired workflow
+#   scripts/gha-cleanup.sh --workflow flaky-check.yml --yes
+#
+#   # Target a different repo
+#   scripts/gha-cleanup.sh --repo bayer-int/other-svc --status cancelled
+#
+# Flags:
+#   --status <s>        Filter by status (cancelled, failure, success, skipped,
+#                       timed_out, action_required). Repeatable; defaults to
+#                       cancelled,failure,timed_out.
+#   --workflow <file>   Restrict to a workflow file (e.g. ci.yml). Repeatable.
+#   --branch <name>     Restrict to runs from a specific branch.
+#   --older-than <dur>  Skip runs newer than this. Accepts Nd / Nh / Nm
+#                       (days/hours/minutes). Default: no age filter.
+#   --limit <n>         Cap total deletions. Default: unlimited.
+#   --page-size <n>     Per-page fetch size (1-1000). Default: 1000.
+#   -j, --jobs <n>      Parallel delete workers. Default: nproc / sysctl.
+#   --repo <owner/name> Target repo. Default: current repo (gh inference).
+#   --dry-run           Print what would be deleted, do not delete.
+#   --yes               Skip the confirmation prompt.
+#   -h, --help          Show this help.
+
+set -euo pipefail
+
+# -------------------------------------------------------------------------
+# Defaults & helpers
+# -------------------------------------------------------------------------
+
+# Coreutils-portable parallelism default.
+default_jobs() {
+    if command -v nproc >/dev/null 2>&1; then
+        nproc
+    elif command -v sysctl >/dev/null 2>&1; then
+        sysctl -n hw.ncpu 2>/dev/null || echo 4
+    else
+        echo 4
+    fi
+}
+
+usage() {
+    sed -n '2,/^$/p' "$0" | sed 's/^# \{0,1\}//'
+    exit "${1:-0}"
+}
+
+die() {
+    echo "error: $*" >&2
+    exit 1
+}
+
+# Convert "30d" / "12h" / "45m" to seconds.
+duration_to_seconds() {
+    local raw="$1"
+    local n="${raw%[dhm]}"
+    local unit="${raw: -1}"
+    [[ "$n" =~ ^[0-9]+$ ]] || die "bad duration: $raw"
+    case "$unit" in
+        d) echo $((n * 86400)) ;;
+        h) echo $((n * 3600)) ;;
+        m) echo $((n * 60)) ;;
+        *) die "duration must end in d/h/m: $raw" ;;
+    esac
+}
+
+# -------------------------------------------------------------------------
+# Argument parsing
+# -------------------------------------------------------------------------
+
+statuses=()
+workflows=()
+branch=""
+older_than_seconds=""
+limit=""
+page_size=1000
+jobs="$(default_jobs)"
+repo=""
+dry_run=0
+assume_yes=0
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --status) statuses+=("$2"); shift 2 ;;
+        --workflow) workflows+=("$2"); shift 2 ;;
+        --branch) branch="$2"; shift 2 ;;
+        --older-than) older_than_seconds="$(duration_to_seconds "$2")"; shift 2 ;;
+        --limit) limit="$2"; shift 2 ;;
+        --page-size) page_size="$2"; shift 2 ;;
+        -j|--jobs) jobs="$2"; shift 2 ;;
+        --repo) repo="$2"; shift 2 ;;
+        --dry-run) dry_run=1; shift ;;
+        --yes|-y) assume_yes=1; shift ;;
+        -h|--help) usage 0 ;;
+        *) die "unknown flag: $1 (use --help)" ;;
+    esac
+done
+
+[ "${#statuses[@]}" -gt 0 ] || statuses=(cancelled failure timed_out)
+[[ "$page_size" =~ ^[0-9]+$ ]] && [ "$page_size" -ge 1 ] && [ "$page_size" -le 1000 ] \
+    || die "--page-size must be 1..1000"
+[[ "$jobs" =~ ^[0-9]+$ ]] && [ "$jobs" -ge 1 ] || die "--jobs must be >=1"
+
+command -v gh >/dev/null 2>&1 || die "gh CLI not found. brew install gh"
+gh auth status >/dev/null 2>&1 || die "gh not authenticated. run: gh auth login"
+
+repo_args=()
+[ -n "$repo" ] && repo_args=(--repo "$repo")
+
+# -------------------------------------------------------------------------
+# Fetch matching run IDs
+# -------------------------------------------------------------------------
+
+# Compute cutoff timestamp once, in epoch seconds, for jq comparisons.
+cutoff_epoch=""
+if [ -n "$older_than_seconds" ]; then
+    cutoff_epoch=$(($(date +%s) - older_than_seconds))
+fi
+
+collect_ids() {
+    local status workflow_filter
+    local total=0
+
+    for status in "${statuses[@]}"; do
+        if [ "${#workflows[@]}" -eq 0 ]; then
+            workflow_filter=("")
+        else
+            workflow_filter=("${workflows[@]}")
+        fi
+
+        for wf in "${workflow_filter[@]}"; do
+            local list_args=("${repo_args[@]}" --status "$status" \
+                --limit "$page_size" --json databaseId,createdAt,displayTitle,headBranch,workflowName)
+            [ -n "$wf" ] && list_args+=(--workflow "$wf")
+            [ -n "$branch" ] && list_args+=(--branch "$branch")
+
+            # gh run list does not paginate; --limit is the hard cap. We loop
+            # by deleting in batches and re-querying until the page is empty
+            # (handled in the outer flow).
+            gh run list "${list_args[@]}" | jq -r --argjson cutoff "${cutoff_epoch:-0}" '
+                .[]
+                | select(($cutoff == 0) or ((.createdAt | fromdateiso8601) < $cutoff))
+                | "\(.databaseId)\t\(.workflowName)\t\(.headBranch)\t\(.createdAt)\t\(.displayTitle)"
+            '
+            total=$((total + 1))
+        done
+    done
+}
+
+# -------------------------------------------------------------------------
+# Main loop: collect, confirm, delete in parallel, repeat until empty
+# -------------------------------------------------------------------------
+
+deleted_total=0
+round=0
+
+delete_one() {
+    local id="$1"
+    if gh run delete "${repo_args[@]}" "$id" >/dev/null 2>&1; then
+        printf '  deleted %s\n' "$id"
+    else
+        printf '  FAILED  %s\n' "$id" >&2
+    fi
+}
+
+# xargs -P parallelizes by spawning the script in a delete-only mode.
+# Pass repo through env so child invocations stay scoped.
+export GH_RUN_REPO="${repo:-}"
+delete_worker_mode() {
+    local id="$1"
+    local args=()
+    [ -n "${GH_RUN_REPO:-}" ] && args=(--repo "$GH_RUN_REPO")
+    if gh run delete "${args[@]}" "$id" >/dev/null 2>&1; then
+        printf '  deleted %s\n' "$id"
+    else
+        printf '  FAILED  %s\n' "$id" >&2
+    fi
+}
+
+if [ "${1:-}" = "__delete_one" ]; then
+    delete_worker_mode "$2"
+    exit $?
+fi
+
+while :; do
+    round=$((round + 1))
+    mapfile -t rows < <(collect_ids)
+
+    if [ "${#rows[@]}" -eq 0 ]; then
+        [ "$round" -eq 1 ] && echo "No matching runs." && exit 0
+        echo "Done. Deleted $deleted_total run(s) across $((round - 1)) round(s)."
+        exit 0
+    fi
+
+    # Apply --limit globally across rounds.
+    if [ -n "$limit" ]; then
+        remaining=$((limit - deleted_total))
+        [ "$remaining" -le 0 ] && break
+        if [ "${#rows[@]}" -gt "$remaining" ]; then
+            rows=("${rows[@]:0:remaining}")
+        fi
+    fi
+
+    echo
+    echo "=== Round $round: ${#rows[@]} run(s) match ==="
+    printf '  %s\n' "${rows[@]:0:10}"
+    [ "${#rows[@]}" -gt 10 ] && echo "  ... and $((${#rows[@]} - 10)) more"
+
+    if [ "$dry_run" -eq 1 ]; then
+        echo "(dry-run) skipping delete"
+        deleted_total=$((deleted_total + ${#rows[@]}))
+        # Dry-run only shows the first page to avoid hammering the API.
+        echo "Dry-run total (first round only): $deleted_total"
+        exit 0
+    fi
+
+    if [ "$assume_yes" -ne 1 ] && [ "$round" -eq 1 ]; then
+        printf "Delete %d run(s) with %d parallel worker(s)? [y/N] " "${#rows[@]}" "$jobs"
+        read -r reply
+        case "$reply" in
+            y|Y|yes|YES) ;;
+            *) echo "Aborted."; exit 1 ;;
+        esac
+    fi
+
+    # Stream just the IDs into xargs for parallel deletion.
+    printf '%s\n' "${rows[@]}" \
+        | awk -F'\t' '{print $1}' \
+        | xargs -n1 -P"$jobs" -I{} bash "$0" __delete_one {}
+
+    deleted_total=$((deleted_total + ${#rows[@]}))
+
+    # If we matched fewer than a full page, we've drained the queue.
+    [ "${#rows[@]}" -lt "$page_size" ] && break
+done
+
+echo
+echo "Done. Deleted $deleted_total run(s) across $round round(s)."

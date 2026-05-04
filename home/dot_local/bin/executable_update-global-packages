@@ -1,0 +1,145 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DRY_RUN=false
+
+usage() {
+  cat <<'EOF'
+Usage: update-global-packages [--dry-run]
+
+Upgrades:
+  - npm itself
+  - bun itself
+  - all npm global packages to @latest
+  - all bun global packages to @latest
+
+Options:
+  -n, --dry-run   Print commands without executing them
+  -h, --help      Show this help
+EOF
+}
+
+log() {
+  printf '%s\n' "$*"
+}
+
+run_cmd() {
+  local -a cmd=("$@")
+  printf '+ '
+  printf '%q ' "${cmd[@]}"
+  printf '\n'
+
+  if ! $DRY_RUN; then
+    "${cmd[@]}"
+  fi
+}
+
+have_cmd() {
+  command -v "$1" >/dev/null 2>&1
+}
+
+npm_global_packages() {
+  local json_file
+  json_file="$(mktemp)"
+  npm ls -g --depth=0 --json --long >"$json_file" 2>/dev/null || true
+  python3 - "$json_file" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+
+try:
+    data = json.loads(path.read_text())
+except (FileNotFoundError, json.JSONDecodeError):
+    sys.exit(0)
+
+for name, meta in data.get("dependencies", {}).items():
+    if name == "npm":
+        continue
+    if not isinstance(meta, dict):
+        print(name)
+        continue
+    resolved = str(meta.get("resolved", ""))
+    if resolved.startswith(("file:", "link:", "workspace:")):
+        continue
+    if meta.get("link") is True:
+        continue
+    print(name)
+PY
+  rm -f "$json_file"
+}
+
+bun_global_packages() {
+  local bun_bin bun_root package_json
+  bun_bin="$(bun pm bin -g)"
+  bun_root="$(cd "$(dirname "$bun_bin")" && pwd)"
+  package_json="$bun_root/install/global/package.json"
+  python3 - "$package_json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+
+try:
+    data = json.loads(path.read_text())
+except (FileNotFoundError, json.JSONDecodeError):
+    sys.exit(0)
+
+for name, spec in data.get("dependencies", {}).items():
+    spec = str(spec)
+    if spec.startswith(("file:", "link:", "workspace:", "portal:")):
+        continue
+    print(name)
+PY
+}
+
+for arg in "$@"; do
+  case "$arg" in
+    -n|--dry-run) DRY_RUN=true ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $arg" >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
+
+if $DRY_RUN; then
+  log "Dry run: showing commands only"
+fi
+
+if have_cmd npm; then
+  log "==> Upgrading npm"
+  run_cmd npm install -g npm@latest
+else
+  log "Skipping npm: command not found"
+fi
+
+if have_cmd bun; then
+  log "==> Upgrading bun"
+  run_cmd bun upgrade
+else
+  log "Skipping bun: command not found"
+fi
+
+if have_cmd npm; then
+  log "==> Upgrading npm global packages"
+  while IFS= read -r package; do
+    [[ -z "$package" ]] && continue
+    run_cmd npm install -g "$package@latest"
+  done < <(npm_global_packages)
+fi
+
+if have_cmd bun; then
+  log "==> Upgrading bun global packages"
+  while IFS= read -r package; do
+    [[ -z "$package" ]] && continue
+    run_cmd bun add -g "$package@latest"
+  done < <(bun_global_packages)
+fi

@@ -1,128 +1,297 @@
-// Zed settings
-//
-// For information on how to configure Zed, see the Zed
-// documentation: https://zed.dev/docs/configuring-zed
-//
-// To see all of Zed's default settings without changing your
-// custom settings, run `zed: open default settings` from the
-// command palette (cmd-shift-p / ctrl-shift-p)
+// Zed v1.0 optimized settings
+// Generated 2026-05-02 — cleaned invalid keys, added new v1.0 features
 {
-  "ui_font_family": "CaskaydiaCove Nerd Font",
-  "auto_signature_help": true,
-  "diagnostics": {
-    "inline": {
-      "enabled": true
-    }
-  },
-  "prettier": {
-    "allowed": true
-  },
-  "preview_tabs": {
-    "enable_preview_from_file_finder": true
-  },
-  "tab_bar": {
-    "show_pinned_tabs_in_separate_row": false
-  },
-  "tabs": {
-    "file_icons": true,
-    "git_status": true
-  },
-  "title_bar": {
-    "show_menus": true,
-    "show_branch_icon": true
-  },
-  "git_panel": {
-    "dock": "left",
-    "tree_view": true
-  },
-  "which_key": {
-    "enabled": true
-  },
-  "audio": {
-    "experimental.auto_microphone_volume": true,
-    "experimental.rodio_audio": true
-  },
-  "calls": {
-    "mute_on_join": true
-  },
-  "agent": {
-    "default_model": {
-      "provider": "zed.dev",
-      "model": "gpt-5.4",
-      "enable_thinking": true,
-      "effort": "medium"
-    },
-    "single_file_review": true,
-    "tool_permissions": {
-      "default": "allow",
-      "tools": {}
-    },
-    "show_turn_stats": true,
-    "favorite_models": [],
-    "play_sound_when_agent_done": true,
-    "model_parameters": []
-  },
-  "edit_predictions": {
-    "ollama": {
-      "model": "qwen2.5-coder:14b-instruct"
-    },
-    "provider": "zed"
-  },
-  "icon_theme": {
-    "mode": "light",
-    "light": "Material Icon Theme",
-    "dark": "Material Icon Theme"
-  },
-  "session": {
-    "trust_all_worktrees": true
-  },
-  "terminal": {
-    "shell": "system",
-    "font_family": "MesloLGS NF",
-    "line_height": {
-      "custom": 1.1
-    },
-    "cursor_shape": "bar"
-  },
-  "project_panel": {
-    "auto_fold_dirs": false
-  },
-  "sticky_scroll": {
-    "enabled": true
-  },
-  "minimap": {
-    "show": "auto",
-    "thumb": "always",
-    "max_width_columns": 100
-  },
-  "cursor_shape": "bar",
-  "cursor_blink": true,
-  "autosave": "off",
-  "buffer_font_fallbacks": [
-    "FiraCode Nerd Font",
-    "Droid Sans Mono",
-    "Consolas",
-    "Courier New",
-    "monospace"
-  ],
-  "buffer_font_family": "CaskaydiaCove Nerd Font Propo",
-  "colorize_brackets": true,
-  "auto_indent_on_paste": false,
-  "linked_edits": true,
-  "use_on_type_format": false,
-  "show_whitespaces": "boundary",
-  "ensure_final_newline_on_save": true,
-  "wrap_guides": [
-    120
-  ],
-  "preferred_line_length": 120,
-  "tab_size": 2,
+  // ────────────────────────────────── Core ──────────────────────────────────
+  "cli_default_open_behavior": "new_window",
   "base_keymap": "Cursor",
-  "ui_font_size": 16,
-  "buffer_font_size": 13.0,
   "theme": {
     "mode": "dark",
-    "light": "One Light",
-    "dark": "Snazzy Theme"
-  }
+    "light": "Gruvbox Light",
+    "dark": "One Dark"
+  },
+  "restore_on_startup": "last_session",
+  "close_on_file_delete": true,
+  "autosave": "on_focus_change",
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false,
+  },
+  "vim_mode": false,
+
+  // ────────────────────────────────── Font ──────────────────────────────────
+  "buffer_font_family": "CaskaydiaCove Nerd Font Propo",
+  "buffer_font_size": 13,
+  "ui_font_size": 17,
+
+  // ────────────────────────────────── Editor ──────────────────────────────────
+  "tab_size": 2,
+  "preferred_line_length": 120,
+  "wrap_guides": [120],
+  "show_whitespaces": "boundary",
+  "auto_indent_on_paste": false,
+  "use_on_type_format": false,
+  "remove_trailing_whitespace_on_save": true,
+  "ensure_final_newline_on_save": true,
+  "linked_edits": true,
+  "colorize_brackets": true,
+  "auto_signature_help": true,
+  "cursor_shape": "bar",
+  "cursor_blink": true,
+  "soft_wrap": "prefer_line",
+  "indent_guides": {
+    "enabled": true,
+    "coloring": "indent_aware",
+  },
+  "line_ending": "prefer_lf",
+  "preview_tabs": {
+    "enabled": true,
+    "enable_preview_from_file_finder": true,
+    "enable_preview_from_project_panel": false,
+  },
+
+  // ────────────────────────────────── Toolbar ──────────────────────────────────
+  "toolbar": {
+    "breadcrumbs": true,
+    "quick_actions": false,
+    "selections_menu": true,
+  },
+
+  // ────────────────────────────────── Scrollbar ──────────────────────────────────
+  "scrollbar": {
+    "show": "always",
+    "diagnostics": "all",
+    "git_diff": false,
+    "selected_symbol": true,
+  },
+
+  // ────────────────────────────────── Gutter ──────────────────────────────────
+  "gutter": {
+    "line_numbers": true,
+    "runnables": true,
+    "folds": true,
+    "breakpoints": false,
+  },
+  "inline_code_actions": true,
+
+  // ────────────────────────────────── Current Line ──────────────────────────────────
+  "current_line_highlight": "all",
+  "selection_highlight": true,
+  "rounded_selection": false,
+
+  // ────────────────────────────────── Tabs ──────────────────────────────────
+  "tabs": {
+    "close_position": "right",
+    "activate_on_close": "neighbour",
+  },
+
+  // ────────────────────────────────── Title Bar ──────────────────────────────────
+  "title_bar": {
+    "show_branch_status_icon": true,
+  },
+
+  // ────────────────────────────────── Project Panel ──────────────────────────────────
+  "project_panel": {
+    "dock": "left",
+    "auto_fold_dirs": false,
+    "indent_size": 20,
+    "entry_spacing": "comfortable",
+  },
+
+  // ────────────────────────────────── Git ──────────────────────────────────
+  "git": {
+    "git_gutter": "tracked_files",
+    "inline_blame": {
+      "show_commit_summary": true,
+      "enabled": true,
+      "delay_ms": 1000,
+    },
+  },
+  "git_panel": {
+    "tree_view": true,
+    "dock": "right",
+    "button": true,
+    "scrollbar": {
+      "show": "never",
+    },
+  },
+
+  // ────────────────────────────────── Terminal ──────────────────────────────────
+  "terminal": {
+    "cursor_shape": "bar",
+    "blinking": "on",
+    "font_size": 13,
+  },
+
+  // ────────────────────────────────── Diagnostics ──────────────────────────────────
+  "diagnostics": {
+    "inline": {
+      "enabled": true,
+    },
+  },
+
+  // ────────────────────────────────── Inlay Hints ──────────────────────────────────
+  "inlay_hints": {
+    "enabled": false,
+    "edit_debounce_ms": 700,
+    "scroll_debounce_ms": 50,
+  },
+
+  // ────────────────────────────────── Code Lens ──────────────────────────────────
+  "code_lens": "on",
+
+  // ────────────────────────────────── Search ──────────────────────────────────
+  "search": {
+    "whole_word": false,
+    "case_sensitive": false,
+    "include_ignored": false,
+    "regex": false,
+    "center_on_match": true,
+  },
+
+  // ────────────────────────────────── Diff ──────────────────────────────────
+  "diff_view_style": "split",
+  "unnecessary_code_fade": 0.3,
+
+  // ────────────────────────────────── Completions ──────────────────────────────────
+  "document_symbols": "on",
+  "show_completions_on_input": true,
+  "show_completion_documentation": true,
+
+  // ────────────────────────────────── Edit Predictions ──────────────────────────────────
+  "edit_predictions": {
+    "provider": "zed",
+  },
+
+  // ────────────────────────────────── Agent ──────────────────────────────────
+  "agent": {
+    // "default_model": "zed.dev/gpt-5.4",
+    "default_model": {
+      "provider": "zed.dev",
+      "model": "gpt-5.5-pro",
+      "enable_thinking": true,
+      "effort": "high"
+    },
+    "default_profile": "write",
+    "dock": "right",
+    "play_sound_when_agent_done": "always",
+    "notify_when_agent_waiting": "all_screens",
+    "tool_permissions": {
+      "default": "allow",
+    },
+  },
+
+  // ────────────────────────────────── Agent Servers ──────────────────────────────────
+  "agent_servers": {
+    "pi-acp": {
+      "type": "registry"
+    },
+    "opencode": {
+      "type": "registry"
+    },
+    "glm-acp-agent": {
+      "type": "registry"
+    },
+    "github-copilot-cli": {
+      "type": "registry"
+    },
+    "factory-droid": {
+      "type": "registry"
+    },
+    "cursor": {
+      "type": "registry"
+    },
+    "codex-acp": {
+      "type": "registry"
+    },
+    "claude-acp": {
+      "type": "registry"
+    }
+  },
+
+  // ────────────────────────────────── Languages ──────────────────────────────────
+  "languages": {
+    "TypeScript": {
+      "language_servers": ["tsgo", "!typescript-language-server", "!vtsls"],
+      "formatter": "prettier",
+      "code_actions_on_format": {
+        "source.organizeImports": true,
+        "source.fixAll.eslint": true,
+      },
+      "inlay_hints": {
+        "enabled": true,
+        "show_type_hints": true,
+        "show_parameter_hints": true,
+        "show_other_hints": true,
+      },
+    },
+    "TSX": {
+      "language_servers": ["tsgo", "!typescript-language-server", "!vtsls"],
+      "formatter": "prettier",
+      "code_actions_on_format": {
+        "source.organizeImports": true,
+        "source.fixAll.eslint": true,
+      },
+      "inlay_hints": {
+        "enabled": true,
+        "show_type_hints": true,
+        "show_parameter_hints": true,
+        "show_other_hints": true,
+      },
+    },
+    "JSONC": {
+      "formatter": "prettier",
+    },
+  },
+
+  // ────────────────────────────────── File Types ──────────────────────────────────
+  "file_types": {
+    "JSONC": ["*.jsonc", "settings.json", "settings_backup.json"],
+  },
+
+  // ────────────────────────────────── Formatting ──────────────────────────────────
+  "format_on_save": "on",
+  "formatter": "auto",
+
+  // ────────────────────────────────── LSP ──────────────────────────────────
+  "lsp": {
+    "tsgo": {
+      "initialization_options": {
+        "preferences": {
+          "includeInlayParameterNameHints": "all",
+          "includeInlayParameterNameHintsWhenArgumentMatchesName": false,
+          "includeInlayFunctionParameterTypeHints": true,
+          "includeInlayVariableTypeHints": true,
+          "includeInlayPropertyDeclarationTypeHints": true,
+          "includeInlayFunctionLikeReturnTypeHints": true,
+          "includeInlayEnumMemberValueHints": true,
+          "includeCompletionsForModuleExports": true,
+          "includeCompletionsWithClassMemberSnippets": true,
+          "includeAutomaticOptionalChainCompletions": true,
+          "includeCompletionsWithInsertText": true,
+        },
+      },
+    },
+  },
+
+  // ────────────────────────────────── Experimental ──────────────────────────────────
+  "enable_language_server": true,
+  "collaboration_panel": {
+    "dock": "right",
+  },
+  // ────────────────────────────────── Session ──────────────────────────────────
+  "restore_on_file_reopen": true,
+  "session": {
+    "restore_unsaved_buffers": true,
+    "trust_all_worktrees": true,
+  },
+
+  // ────────────────────────────────── Misc ──────────────────────────────────
+  "icon_theme": {
+    "mode": "dark",
+    "light": "Zed (Default)",
+    "dark": "Catppuccin Frappé"
+  },
+  "minimap": {
+    "show": "never",
+  },
 }

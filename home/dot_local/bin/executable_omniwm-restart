@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SOCKET="$HOME/Library/Caches/com.barut.OmniWM/ipc.sock.secret"
+
+echo "==> killing OmniWM"
+pkill -x OmniWM 2>/dev/null && sleep 1 || true
+
+if [[ -e "$SOCKET" ]]; then
+  echo "==> removing stale IPC socket"
+  rm -f "$SOCKET"
+fi
+
+echo "==> launching OmniWM"
+open -a OmniWM
+
+echo -n "==> waiting for IPC "
+for i in $(seq 1 10); do
+  sleep 0.5
+  printf "."
+  if omniwmctl ping 2>/dev/null; then
+    echo ""
+    echo "done"
+    exit 0
+  fi
+done
+
+echo ""
+echo "error: timed out waiting for OmniWM IPC" >&2
+exit 1

@@ -9,29 +9,29 @@ mode = "dark"
 
 [borders]
 enabled = true
-width = 5.0
+width = 4.0
 
 [borders.color]
 alpha = 1.0
 blue = 0.0
-green = 0.9128391146659851
-red = 0.9416384696960449
+green = 0.9860098958015442
+red = 0.9661858677864075
 
 [dwindle]
 defaultSplitRatio = 1.0
 moveToRootStable = true
 singleWindowAspectRatio = "4:3"
-smartSplit = true
+smartSplit = false
 splitWidthMultiplier = 1.0
 useGlobalGaps = true
 
 [focus]
-followsMouse = true
+followsMouse = false
 followsWindowToMonitor = false
 moveMouseToFocusedWindow = false
 
 [gaps]
-size = 3.0
+size = 8.0
 
 [gaps.outer]
 bottom = 8.0
@@ -43,7 +43,7 @@ top = 8.0
 animationsEnabled = true
 defaultLayoutType = "niri"
 hotkeysEnabled = true
-ipcEnabled = true
+ipcEnabled = false
 preventSleepEnabled = false
 updateChecksEnabled = true
 
@@ -64,9 +64,9 @@ name = "Built-in Retina Display"
 
 [niri]
 alwaysCenterSingleColumn = true
-centerFocusedColumn = "onOverflow"
+centerFocusedColumn = "never"
 columnWidthPresets = [0.3333333333333333, 0.5, 0.66]
-infiniteLoop = true
+infiniteLoop = false
 maxVisibleColumns = 2
 maxWindowsPerColumn = 3
 singleWindowAspectRatio = "4:3"
@@ -74,7 +74,7 @@ singleWindowAspectRatio = "4:3"
 [quakeTerminal]
 animationDuration = 0.2
 autoHide = false
-enabled = true
+enabled = false
 heightPercent = 50.0
 monitorMode = "focusedWindow"
 opacity = 1.0
@@ -93,7 +93,7 @@ useWorkspaceId = true
 
 [workspaceBar]
 backgroundOpacity = 0.1
-deduplicateAppIcons = true
+deduplicateAppIcons = false
 enabled = true
 height = 24.0
 hideEmptyWorkspaces = false
@@ -101,7 +101,7 @@ labelFontSize = 12.0
 notchAware = true
 position = "overlappingMenuBar"
 reserveLayoutSpace = false
-showFloatingWindows = false
+showFloatingWindows = true
 showLabels = true
 windowLevel = "popup"
 xOffset = 0.0
@@ -133,14 +133,12 @@ minWidth = 950.0
 
 [[appRules]]
 bundleId = "com.google.Chrome"
-assignToWorkspace = "3"
 id = "486CEFA6-69AA-4A3C-AF27-BCD38F4F138B"
 minHeight = 375.0
 minWidth = 500.0
 
 [[appRules]]
 bundleId = "dev.zed.Zed"
-assignToWorkspace = "4"
 id = "979F05F4-FFA2-4EDD-B23F-08A9944C759F"
 minHeight = 240.0
 minWidth = 360.0
@@ -195,39 +193,9 @@ minWidth = 930.0
 
 [[appRules]]
 bundleId = "com.apple.MobileSMS"
-assignToWorkspace = "1"
 id = "552FB77D-BF0E-4737-90A6-B5BC6986C579"
 minHeight = 320.0
 minWidth = 660.0
-
-[[appRules]]
-bundleId = "com.microsoft.teams2"
-assignToWorkspace = "1"
-id = "F6B55D1D-ABD5-45B3-85DD-DDD59903B107"
-
-[[appRules]]
-bundleId = "com.t3tools.t3code"
-assignToWorkspace = "2"
-id = "4762BC9D-F9BE-4891-B57A-1B849CC50A05"
-
-[[appRules]]
-bundleId = "com.zarifpour.superconductor"
-assignToWorkspace = "2"
-id = "940BD5D5-234E-4DB5-BD90-35DBA82F7D60"
-
-[[appRules]]
-bundleId = "dev.zed.zed-preview"
-assignToWorkspace = "4"
-id = "C343E980-145A-43AB-96AD-069E80CE3C0C"
-minHeight = 240.0
-minWidth = 360.0
-
-[[appRules]]
-bundleId = "com.microsoft.vscodeinsiders"
-assignToWorkspace = "5"
-id = "BA56C45F-4655-4099-AB71-FE00F786AB2B"
-minHeight = 240.0
-minWidth = 360.0
 
 [[hotkeys]]
 binding = "Option+1"
@@ -426,7 +394,7 @@ binding = "Option+Return"
 id = "toggleFullscreen"
 
 [[hotkeys]]
-binding = "Control+Option+Return"
+binding = "Unassigned"
 id = "toggleNativeFullscreen"
 
 [[hotkeys]]
@@ -574,19 +542,19 @@ binding = "Option+Shift+R"
 id = "raiseAllFloatingWindows"
 
 [[hotkeys]]
-binding = "Control+Option+Shift+R"
+binding = "Unassigned"
 id = "rescueOffscreenWindows"
 
 [[hotkeys]]
-binding = "Option+Shift+Space"
+binding = "Unassigned"
 id = "toggleFocusedWindowFloating"
 
 [[hotkeys]]
-binding = "Control+Option+S"
+binding = "Unassigned"
 id = "assignFocusedWindowToScratchpad"
 
 [[hotkeys]]
-binding = "Option+S"
+binding = "Unassigned"
 id = "toggleScratchpadWindow"
 
 [[hotkeys]]
@@ -594,11 +562,11 @@ binding = "Control+Option+M"
 id = "openMenuAnywhere"
 
 [[hotkeys]]
-binding = "Control+Option+B"
+binding = "Option+B"
 id = "toggleWorkspaceBarVisibility"
 
 [[hotkeys]]
-binding = "Control+Option+H"
+binding = "Option+H"
 id = "toggleHiddenBar"
 
 [[hotkeys]]
@@ -614,16 +582,15 @@ binding = "Option+Shift+O"
 id = "toggleOverview"
 
 [[workspaces]]
-displayName = "Chat"
-id = "AD36F001-C57E-41A5-AC1D-DF5249D007F0"
-layoutType = "niri"
+displayName = "1"
+id = "6562A011-C4E2-4330-94C7-4494F73BE0EE"
+layoutType = "default"
 name = "1"
 
 [workspaces.monitorAssignment]
 type = "main"
 
 [[workspaces]]
-displayName = "Process"
 id = "454CECD4-5E9D-4ED1-95D7-979D48817F5F"
 layoutType = "niri"
 name = "2"
@@ -632,16 +599,15 @@ name = "2"
 type = "main"
 
 [[workspaces]]
-displayName = "Web"
-id = "BEB842B5-E894-4791-9FD1-397C3CDD3538"
-layoutType = "niri"
+displayName = "3"
+id = "DDB2E7C5-0665-4548-8424-709116C33F1F"
+layoutType = "default"
 name = "3"
 
 [workspaces.monitorAssignment]
 type = "main"
 
 [[workspaces]]
-displayName = "Code"
 id = "248AA883-2261-4D45-943C-79C0E46A232B"
 layoutType = "niri"
 name = "4"
@@ -656,3 +622,12 @@ name = "5"
 
 [workspaces.monitorAssignment]
 type = "main"
+
+[[workspaces]]
+displayName = "❤️"
+id = "5953F2BF-A378-4266-91B2-287174C4FA4D"
+layoutType = "niri"
+name = "6"
+
+[workspaces.monitorAssignment]
+type = "secondary"

@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v bleachbit >/dev/null 2>&1; then
+  echo "error: bleachbit not found" >&2
+  exit 1
+fi
+
+if [[ $EUID -ne 0 ]]; then
+  echo "error: must run as root (sudo)" >&2
+  exit 1
+fi
+
+CLEANERS=$(bleachbit --list 2>&1 | grep -v -E '(passwords|Gdk|Authorization)' | tr '\n' ' ')
+
+echo "==> preview (excluding passwords)"
+bleachbit --preview $CLEANERS
+
+echo "done"

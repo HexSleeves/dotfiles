@@ -1,0 +1,16 @@
+# ============================================================
+# Distrobox Runtime Configuration (~/.distroboxrc)
+# Applied every time a distrobox container starts.
+# Managed by chezmoi — edit in dotfiles/home/dot_distroboxrc
+# ============================================================
+
+# --- X11/Wayland display forwarding ---
+# Ensure GUI apps can connect to the host display
+xhost +si:localuser:$USER > /dev/null 2>&1
+
+# --- Use pkexec for GUI password prompts (when --root is needed) ---
+# Uncomment to use graphical sudo prompt instead of terminal:
+# distrobox_sudo_program="pkexec"
+
+# --- Default to Podman (faster, rootless) ---
+# distrobox auto-detects podman on this system

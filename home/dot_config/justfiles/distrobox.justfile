@@ -18,3 +18,25 @@ justfile := justfile_directory() + "/.justfiles/distrobox.justfile"
 [group("distrobox")]
 @list:
     distrobox list
+
+# --- New: dev container management ---
+
+[group("distrobox")]
+@build-dev:
+    podman build -t dev-base:latest -f ~/.config/distrobox/dev.Dockerfile ~/.config/distrobox
+
+[group("distrobox")]
+@enter container="dev":
+    distrobox enter {{ container }}
+
+[group("distrobox")]
+@scaffold project:
+    ~/.local/bin/distrobox-scaffold {{ project }}
+
+[group("distrobox")]
+@scaffold-with project packages:
+    ~/.local/bin/distrobox-scaffold {{ project }} --packages "{{ packages }}"
+
+[group("distrobox")]
+@generate-entry container="dev":
+    distrobox generate-entry {{ container }}

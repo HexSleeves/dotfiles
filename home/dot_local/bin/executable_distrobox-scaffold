@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+# ============================================================
+# distrobox-scaffold — Create per-project Distrobox containers
+# derived from your dev-base image.
+#
+# Managed by chezmoi — edit in dotfiles/home/dot_local/bin/
+#
+# Usage:
+#   distrobox-scaffold myproject              # basic container from dev-base
+#   distrobox-scaffold myproject --packages "postgresql redis"
+#   distrobox-scaffold myproject --dockerfile project.Dockerfile
+#   distrobox-scaffold --list                  # show all containers
+# ============================================================
+set -euo pipefail
+
+BASE_IMAGE="${DISTROBOX_BASE_IMAGE:-dev-base:latest}"
+GREEN='\033[0;32m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+list_containers() {
+    echo "=== Active Distrobox containers ==="
+    distrobox list 2>/dev/null || echo "(none)"
+    exit 0
+}
+
+usage() {
+    cat <<EOF
+Usage: distrobox-scaffold <name> [options]
+       distrobox-scaffold --list
+
+Options:
+  --packages "pkg1 pkg2"   Extra Arch packages to install (pacman)
+  --dockerfile FILE        Use a custom Dockerfile instead of dev-base
+  --init                   Enable systemd init inside the container
+  --export-app APP         Export a GUI app to the host after creation
+  --list                   Show all existing containers
+
+Examples:
+  distrobox-scaffold my-python-project --packages "python-pandas postgresql"
+  distrobox-scaffold my-rust-project --packages "cargo-edit"
+  distrobox-scaffold legacy-app --dockerfile ubuntu.Dockerfile --export-app firefox
+EOF
+    exit 0
+}
+
+# --- Parse args ---
+[[ $# -eq 0 ]] && usage
+[[ "${1:-}" == "--list" ]] && list_containers
+[[ "${1:-}" == "--help" || "${1:-}" == "-h" ]] && usage
+
+NAME="$1"
+shift
+PACKAGES=""
+DOCKERFILE=""
+INIT=""
+EXPORT_APP=""
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --packages) PACKAGES="$2"; shift 2 ;;
+        --dockerfile) DOCKERFILE="$2"; shift 2 ;;
+        --init) INIT="--init"; shift ;;
+        --export-app) EXPORT_APP="$2"; shift 2 ;;
+        *) echo "Unknown option: $1"; usage ;;
+    esac
+done
+
+# --- Build custom image if Dockerfile provided ---
+if [[ -n "$DOCKERFILE" ]]; then
+    if [[ ! -f "$DOCKERFILE" ]]; then
+        echo "Error: Dockerfile not found: $DOCKERFILE"
+        exit 1
+    fi
+    IMAGE="${NAME}-image:latest"
+    echo -e "${CYAN}Building custom image '${IMAGE}' from ${DOCKERFILE}...${NC}"
+    podman build -t "$IMAGE" -f "$DOCKERFILE" "$(dirname "$DOCKERFILE")"
+else
+    IMAGE="$BASE_IMAGE"
+fi
+
+# --- Create the container ---
+echo -e "${CYAN}Creating distrobox container '${NAME}' from ${IMAGE}...${NC}"
+distrobox create \
+    --name "$NAME" \
+    --image "$IMAGE" \
+    $INIT \
+    --yes
+
+# --- Install extra packages ---
+if [[ -n "$PACKAGES" ]]; then
+    echo -e "${CYAN}Installing extra packages: ${PACKAGES}${NC}"
+    distrobox enter "$NAME" -- sudo pacman -S --noconfirm --needed $PACKAGES
+fi
+
+# --- Export GUI app ---
+if [[ -n "$EXPORT_APP" ]]; then
+    echo -e "${CYAN}Exporting '${EXPORT_APP}' to host applications...${NC}"
+    distrobox enter "$NAME" -- distrobox-export --app "$EXPORT_APP"
+fi
+
+echo ""
+echo -e "${GREEN}✓ Container '${NAME}' is ready!${NC}"
+echo -e "  Enter:  ${CYAN}distrobox enter ${NAME}${NC}"
+echo -e "  List:   ${CYAN}distrobox list${NC}"
+echo -e "  Export: ${CYAN}distrobox enter ${NAME} -- distrobox-export --app <name>${NC}"

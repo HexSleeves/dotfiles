@@ -1,0 +1,60 @@
+{
+  "providers": {
+    "cursorapi": {
+      "api": "openai-completions",
+      "apiKey": "cursor-local",
+      "authHeader": true,
+      "baseUrl": "http://127.0.0.1:8787/v1",
+      "models": [
+        {
+          "api": "openai-completions",
+          "compat": {
+            "maxTokensField": "max_tokens",
+            "requiresAssistantAfterToolResult": false,
+            "supportsUsageInStreaming": true
+          },
+          "contextWindow": 200000,
+          "cost": {
+            "cacheRead": 0,
+            "cacheWrite": 0,
+            "input": 0.5,
+            "output": 2.5
+          },
+          "id": "composer-2.5",
+          "input": ["text"],
+          "limit": {
+            "context": 200000,
+            "output": 65536
+          },
+          "maxTokens": 65536,
+          "name": "Composer 2.5",
+          "reasoning": false
+        },
+        {
+          "api": "openai-completions",
+          "compat": {
+            "maxTokensField": "max_tokens",
+            "requiresAssistantAfterToolResult": false,
+            "supportsUsageInStreaming": true
+          },
+          "contextWindow": 200000,
+          "cost": {
+            "cacheRead": 0,
+            "cacheWrite": 0,
+            "input": 3,
+            "output": 15
+          },
+          "id": "composer-2.5-fast",
+          "input": ["text"],
+          "limit": {
+            "context": 200000,
+            "output": 65536
+          },
+          "maxTokens": 65536,
+          "name": "Composer 2.5 Fast",
+          "reasoning": false
+        }
+      ]
+    }
+  }
+}

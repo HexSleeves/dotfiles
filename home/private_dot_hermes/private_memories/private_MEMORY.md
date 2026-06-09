@@ -1,0 +1,9 @@
+The terminal tool runs on a Linux VM with fish shell, not on the macOS host. The VM home is /home/lecoqjacob/ while the macOS host is /Users/lecoqjacob/. The fish shell has quoting issues — always pass workdir="/home/lecoqjacob" to terminal(), avoid $(command substitution), heredocs, and inline VAR=val assignments. Use printf "..." | tee file for file creation. Fish-safe pattern: echo "base64..." | base64 -d | tee file.
+§
+Slack bot token set up for Liatrio workspace (liatrio.slack.com). Bot name: hermes. Token stored at /home/lecoqjacob/.slack_token on the VM. Scopes: channels:history, channels:read, groups:history, groups:read, im:history, im:read, users:read, chat:write, files:read. The slack-api-monitor skill has the scan template and workflow.
+§
+Slack monitoring set up for Liatrio workspace (liatrio.slack.com). Bot "hermes" (U0B8YRV8H1P) with token at /home/lecoqjacob/.slack_token on the VM. Bot token has scopes: app_mentions:read, chat:write, files:write, im:write, assistant:write, commands, channels:history, channels:read, files:read, groups:history, groups:read, im:history, im:read, users:read. Bot is NOT yet a member of any channels — needs to be invited (/invite @hermes) before conversations.history will work. Target channels for daily digest: #flywheel (CGCM89Z4G) and #random (C037FL37Y). Pending: invite bot then set up cronjob at 9:30 AM CST.
+§
+Cursor IDE is the user's default IDE. The `cursor` CLI is installed at /Users/lecoqjacob/.local/bin/cursor (macOS). The user wants Cursor as the default app for opening source code files on macOS. Bundle ID: com.todesktop.230113muz2h70oe.
+§
+macOS host reachable from Linux VM via SSH: lecoqjacob@100.124.27.107. Use `scp` for file transfers (avoids fish quoting issues). The VM runs fish shell which breaks on commands with quotes or special chars due to Hermes wrapper injection. Apple menu → click element #6 "System Settings…" opens System Settings.

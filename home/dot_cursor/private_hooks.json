@@ -1,11 +1,16 @@
 {
-  "version": 1,
   "hooks": {
     "preToolUse": [
       {
         "command": "./hooks/rtk-rewrite.sh",
         "matcher": "Shell"
       }
+    ],
+    "sessionStart": [
+      {
+        "command": "bash '/Users/lecoqjacob/.cursor/herdr-agent-state.sh' session"
+      }
     ]
-  }
+  },
+  "version": 1
 }

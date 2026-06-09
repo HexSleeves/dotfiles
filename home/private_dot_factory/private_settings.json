@@ -1,0 +1,19 @@
+{
+  "enabledPlugins": {
+    "core@factory-plugins": true
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "bash '/Users/lecoqjacob/.factory/hooks/herdr-agent-state.sh' session",
+            "timeout": 10,
+            "type": "command"
+          }
+        ]
+      }
+    ]
+  },
+  "logoAnimation": "off"
+}

@@ -1,0 +1,35 @@
+# =============================================================================
+# Tailscale machines - native Tailscale SSH (no SSH keys required)
+# Tailscale handles auth via node identity; set tailscale set --ssh on each node.
+# =============================================================================
+
+Host cachyos-x8664 cachyos ts-linux
+    HostName 100.104.62.30
+    User lecoqjacob
+    IdentityAgent none
+    IdentitiesOnly no
+
+Host macbook-pro macbook ts-mac
+    HostName 100.124.27.107
+    User lecoqjacob
+    IdentityAgent none
+    IdentitiesOnly no
+
+Host bayer-macbook bayer
+    HostName 100.121.86.102
+    User lecoqjacob
+    IdentityAgent none
+    IdentitiesOnly no
+
+Host jacobs-macbook jacobs
+    HostName 100.127.47.116
+    User lecoqjacob
+    IdentityAgent none
+    IdentitiesOnly no
+
+Host liatro-macbook liatro
+    HostName 100.89.119.5
+    User lecoqjacob
+    IdentityAgent none
+    IdentitiesOnly no
+

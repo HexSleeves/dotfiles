@@ -18,7 +18,7 @@ foxundermoon.shell-format
 github.vscode-github-actions
 github.vscode-pull-request-github
 golang.go
-hexsleeves.review-gate-v3
+# hexsleeves.review-gate-v3  # removed: no longer available on marketplace
 kilocode.kilo-code
 kylinideteam.gitlens
 mads-hartmann.bash-ide-vscode

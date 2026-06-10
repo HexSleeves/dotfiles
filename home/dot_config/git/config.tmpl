@@ -10,13 +10,25 @@
 [include]
 	path = "~/.config/git/themes.gitconfig"
 
+[includeIf "gitdir:~/Developer/personal/"]
+	path = ~/.config/git/identity.personal
+[includeIf "gitdir:~/Developer/games/"]
+	path = ~/.config/git/identity.personal
+[includeIf "gitdir:~/Developer/apps/"]
+	path = ~/.config/git/identity.personal
+[includeIf "gitdir:~/Developer/infra/"]
+	path = ~/.config/git/identity.personal
+[includeIf "gitdir/i:~/Work/bayer/"]
+	path = ~/.config/git/identity.bayer
+[includeIf "gitdir/i:~/Work/liatrio/"]
+	path = ~/.config/git/identity.liatrio
+
 [core]
 	editor = nvim
 	pager = delta
 	autocrlf = input
 	whitespace = trailing-space,space-before-tab
 	excludesfile = ~/.config/git/ignore
-	sshCommand = ssh -i ~/.ssh/id_ed25519
 	preloadindex = true
 	fscache = true
 
@@ -223,8 +235,6 @@
 	threads = 18
 	deltaCacheSize = 512m
 	windowMemory = 512m
-[coderabbit]
-	machineId = cli/463639c5107c4ad18a5b63d0fd0a9ca0
 [credential "https://github.com"]
 	helper = 
 	helper = !gh auth git-credential

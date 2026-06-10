@@ -97,7 +97,14 @@
 {{-   $class = "Personal" -}}
 {{- end -}}
 
-{{- $email := "lecoqjacob@gmail.com" -}}
+{{- $personalEmail := "lecoqjacob@gmail.com" -}}
+{{- $bayerEmail := "jacob.lecoq.ext@bayer.com" -}}
+{{- $liatrioEmail := "jacob.lecoq@liatrio.com" -}}
+{{- $signingKey := "758709BBEB67145DE844FC85C61F052D671268B5" -}}
+{{- $email := env "CHEZMOI_GIT_EMAIL" | trim -}}
+{{- if eq $email "" -}}
+{{-   $email = $personalEmail -}}
+{{- end -}}
 
 encryption = "age"
 sourceDir = {{ joinPath .chezmoi.homeDir ".local/share/chezmoi" | quote }}
@@ -114,11 +121,14 @@ cacheDir = {{ joinPath .chezmoi.homeDir ".cache/chezmoi" | quote }}
     packagemanager = {{ $packageManager | quote }}
     homebrewprefix = {{ $homebrewPrefix | quote }}
     email = {{ $email | quote }}
+    personalemail = {{ $personalEmail | quote }}
+    bayeremail = {{ $bayerEmail | quote }}
+    liatrioemail = {{ $liatrioEmail | quote }}
     class = {{ $class | quote }}
     personal = {{ $personal }}
     headless = {{ $headless }}
     ephemeral = {{ $ephemeral }}
-    signingkey = "758709BBEB67145DE844FC85C61F052D671268B5"
+    signingkey = {{ $signingKey | quote }}
 
 [onepassword]
     command = "op"

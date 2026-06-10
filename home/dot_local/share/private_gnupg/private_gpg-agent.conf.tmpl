@@ -10,5 +10,12 @@ allow-preset-passphrase
 # Allow automation to use --pinentry-mode loopback
 allow-loopback-pinentry
 
-# Use terminal pinentry on Linux
-pinentry-program /home/linuxbrew/.linuxbrew/bin/pinentry-curses
+{{- if eq .chezmoi.os "darwin" }}
+pinentry-program {{ .homebrewprefix }}/bin/pinentry-mac
+{{- else if eq .chezmoi.os "linux" }}
+{{- if eq .homebrewprefix "" }}
+pinentry-program /usr/bin/pinentry-curses
+{{- else }}
+pinentry-program {{ .homebrewprefix }}/bin/pinentry-curses
+{{- end }}
+{{- end }}

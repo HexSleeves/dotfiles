@@ -42,3 +42,6 @@ fi
 if command -v bat >/dev/null 2>&1; then
   alias cat='bat --paging=never'
 fi
+
+# Hermes tooling
+export PATH="$HOME/.hermes/bin:$PATH"

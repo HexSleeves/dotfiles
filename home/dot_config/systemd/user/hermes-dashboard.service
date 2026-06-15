@@ -1,0 +1,15 @@
+[Unit]
+Description=Hermes Agent Web Dashboard
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/home/lecoqjacob/.local/bin/hermes dashboard --host 0.0.0.0 --port 9119 --no-open
+Restart=on-failure
+RestartSec=5
+Environment="PATH=/home/lecoqjacob/.local/bin:/usr/bin:/bin"
+Environment="HOME=/home/lecoqjacob"
+
+[Install]
+WantedBy=default.target

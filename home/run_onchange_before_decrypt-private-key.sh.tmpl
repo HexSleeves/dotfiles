@@ -1,5 +1,4 @@
 #!/bin/sh
-
 set -eu
 
 key_dir="{{ .chezmoi.homeDir }}/.config/chezmoi"
@@ -8,6 +7,6 @@ encrypted_key="{{ .chezmoi.sourceDir }}/key.txt.age"
 
 if [ ! -f "$key_path" ]; then
     mkdir -p "$key_dir"
-    chezmoi age decrypt --output "$key_path" --passphrase "$encrypted_key"
+    chezmoi age decrypt --output "$key_path" "$encrypted_key"
     chmod 600 "$key_path"
 fi

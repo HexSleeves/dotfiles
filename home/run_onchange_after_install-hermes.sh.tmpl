@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Install Hermes Agent CLI
+{{- if or (eq .chezmoi.os "darwin") (eq .chezmoi.os "linux") }}
+set -euo pipefail
+
+HERMES_BIN="$HOME/.local/bin/hermes"
+
+if command -v hermes &>/dev/null || [[ -x "$HERMES_BIN" ]]; then
+  echo "✅ Hermes already installed at $(command -v hermes || echo "$HERMES_BIN")"
+  exit 0
+fi
+
+echo "📦 Installing Hermes Agent..."
+curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
+
+if command -v hermes &>/dev/null || [[ -x "$HERMES_BIN" ]]; then
+  echo "✅ Hermes installed successfully"
+else
+  echo "❌ Hermes installation failed"
+  exit 1
+fi
+{{- end }}

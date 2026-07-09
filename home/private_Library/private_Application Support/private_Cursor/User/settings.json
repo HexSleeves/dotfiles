@@ -5,7 +5,7 @@
   "window.commandCenter": true,
   "window.density.editorTabHeight": "compact",
   "workbench.activityBar.orientation": "vertical",
-  "workbench.colorTheme": "One Dark Pro Mix",
+  "workbench.colorTheme": "One Dark Pro",
   "workbench.iconTheme": "material-icon-theme",
   "workbench.settings.editor": "json",
   "workbench.tree.enableStickyScroll": true,
@@ -36,7 +36,7 @@
   // EDITOR — CORE BEHAVIOR & APPEARANCE
   // =====================================================================================
   "breadcrumbs.enabled": true,
-  "editor.accessibilitySupport": "off",
+  "editor.accessibilitySupport": "on",
   "editor.bracketPairColorization.enabled": true,
   "editor.cursorBlinking": "expand",
   "editor.cursorSmoothCaretAnimation": "on",
@@ -178,6 +178,7 @@
   "git.mergeEditor": true,
   "git.showPushSuccessNotification": true,
   "git.useEditorAsCommitInput": false,
+  "git.allowNoVerifyCommit": true,
   "githubPullRequests.pullBranch": "never",
 
   // =====================================================================================
@@ -303,6 +304,7 @@
     "yankee-jig.exe.xyz": "linux",
     "vs3.spacecats.dev": "linux",
     "safe-tide": "linux",
+    "jacobs-liatrio-macbook-pro": "macOS",
   },
 
   // =====================================================================================
@@ -563,13 +565,16 @@
     "kilo-code.new.agentManager.showTerminal",
     "kilo-code.new.agentManager.runScript",
   ],
-  "kilo-code.new.autocomplete.enableAutoTrigger": true,
-  "kilo-code.new.autocomplete.enableSmartInlineTaskKeybinding": true,
-  "kilo-code.new.autocomplete.enableChatAutocomplete": true,
+  "kilo-code.new.autocomplete.enableAutoTrigger": false,
+  "kilo-code.new.autocomplete.enableSmartInlineTaskKeybinding": false,
+  "kilo-code.new.autocomplete.enableChatAutocomplete": false,
   "kilo-code.new.browserAutomation.enabled": true,
   "cursorpyright.nodeExecutable": "/Users/lecoqjacob/.xdg/fnm_multishells/95356_1774832918379/bin/node",
   "[typescriptreact]": {
     "editor.defaultFormatter": "oxc.oxc-vscode",
   },
   "update.mode": "silentlyApplyOnQuit",
+  "kilo-code.new.agentWorkStyle": "unset",
+  "git.blame.editorDecoration.enabled": true,
+  "git.blame.statusBarItem.enabled": true,
 }

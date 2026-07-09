@@ -1,16 +1,17 @@
 anysphere.cursorpyright
 anysphere.remote-containers
 anysphere.remote-ssh
-augment.vscode-augment
+azat-io.eyecons
 biomejs.biome
-bloop.vibe-kanban
 bradlc.vscode-tailwindcss
 christian-kohler.npm-intellisense
 coderabbit.coderabbit-vscode
+danielhagen-liatrio.liatrio-theme
 davidanson.vscode-markdownlint
 dbaeumer.vscode-eslint
 denoland.vscode-deno
 donjayamanne.githistory
+dotjoshjohnson.xml
 dwtexe.cursor-stats
 esbenp.prettier-vscode
 fill-labs.dependi
@@ -18,7 +19,7 @@ foxundermoon.shell-format
 github.vscode-github-actions
 github.vscode-pull-request-github
 golang.go
-# hexsleeves.review-gate-v3  # removed: no longer available on marketplace
+hexsleeves.review-gate-v3
 kilocode.kilo-code
 kylinideteam.gitlens
 mads-hartmann.bash-ide-vscode
@@ -39,9 +40,12 @@ ms-vscode.vscode-typescript-next
 openai.chatgpt
 oxc.oxc-vscode
 pkief.material-icon-theme
+redhat.java
 redhat.vscode-yaml
+rust-lang.rust-analyzer
 samuelcolvin.jinjahtml
 supabase.postgrestools
+tailscale.vscode-tailscale
 tamasfe.even-better-toml
 timonwong.shellcheck
 typescriptteam.native-preview
@@ -49,5 +53,4 @@ tyriar.sort-lines
 usernamehw.errorlens
 waderyan.gitblame
 yoavbls.pretty-ts-errors
-zardoy.ts-essential-plugins
 zhuangtongfa.material-theme

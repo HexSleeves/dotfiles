@@ -1,0 +1,12 @@
+name: adobe
+root: ~/Projects/adobe/protopack
+windows:
+  - dev:
+      layout: main-vertical
+      panes:
+        - pnpm dev:local
+        - pnpm test:watch
+        - lazygit
+  - agent:
+      panes:
+        - claude

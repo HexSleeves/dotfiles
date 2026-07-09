@@ -87,6 +87,7 @@ brew "tealdeer"
 brew "terraform", link: false
 brew "tfenv"
 brew "tmux"
+brew "tmuxinator"
 brew "tokei"
 brew "topgrade"
 brew "tree"

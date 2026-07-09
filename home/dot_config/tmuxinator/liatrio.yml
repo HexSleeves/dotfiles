@@ -1,0 +1,11 @@
+name: liatrio
+root: ~/Projects/liatrio
+windows:
+  - work:
+      layout: main-vertical
+      panes:
+        - nvim
+        - git status
+  - chat:
+      panes:
+        - slack-term

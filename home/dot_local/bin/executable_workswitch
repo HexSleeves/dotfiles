@@ -1,0 +1,34 @@
+#!/usr/bin/env zsh
+# workswitch <adobe|liatrio|personal> — flip your entire dev context between jobs
+set -e
+PROFILE="${1:-}"
+case "$PROFILE" in
+  adobe)
+    export WORK_PROFILE=adobe
+    export ADOBE_ENV="${ADOBE_ENV:-stage}"
+    cd ~/Projects/adobe/protopack
+    cursor .
+    ;;
+  liatrio)
+    export WORK_PROFILE=liatrio
+    cd ~/Projects/liatrio
+    if [[ -f ~/.slack_token ]]; then
+      export SLACK_TOKEN="$(cat ~/.slack_token)"
+    fi
+    cursor .
+    ;;
+  personal)
+    export WORK_PROFILE=personal
+    cd ~/Projects/personal
+    cursor .
+    ;;
+  "")
+    echo "Usage: workswitch <adobe|liatrio|personal>" >&2
+    exit 1
+    ;;
+  *)
+    echo "Unknown profile: $PROFILE" >&2
+    exit 1
+    ;;
+esac
+echo "✓ Switched to $PROFILE"

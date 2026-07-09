@@ -1,13 +1,16 @@
 #!/usr/bin/env zsh
-# workswitch <adobe|liatrio|personal> — flip your entire dev context between jobs
+# workswitch <adobe|liatrio|personal> — flip your entire dev context between jobs.
+# Adobe mode opens the whole ~/Projects/adobe multi-root workspace in Cursor.
 set -e
 PROFILE="${1:-}"
 case "$PROFILE" in
   adobe)
     export WORK_PROFILE=adobe
     export ADOBE_ENV="${ADOBE_ENV:-stage}"
-    cd ~/Projects/adobe/protopack
-    cursor .
+    cd ~/Projects/adobe
+    # regenerate the multi-root workspace from current Adobe repos
+    command -v gen-adobe-workspace >/dev/null 2>&1 && gen-adobe-workspace
+    cursor ~/Projects/adobe/adobe.code-workspace
     ;;
   liatrio)
     export WORK_PROFILE=liatrio

@@ -1,0 +1,31 @@
+#!/usr/bin/env zsh
+# gen-adobe-workspace — rebuild ~/Projects/adobe/adobe.code-workspace
+# from every git repo directly under ~/Projects/adobe.
+# Run this whenever you add/remove an Adobe repo so the Cursor/Code
+# multi-root workspace stays in sync.
+set -e
+ROOT="${ADOBE_PROJECTS:-$HOME/Projects/adobe}"
+OUT="$ROOT/adobe.code-workspace"
+TMP="$(mktemp)"
+{
+  echo "{"
+  echo '  "folders": ['
+  first=1
+  for d in "$ROOT"/*/; do
+    [ -d "$d/.git" ] || continue
+    name="$(basename "$d")"
+    [ $first -eq 0 ] && echo ","
+    first=0
+    echo "    { \"path\": \"$name\" }"
+  done
+  echo "  ],"
+  echo '  "settings": {'
+  echo '    "editor.formatOnSave": true,'
+  echo '    "typescript.preferences.includePackageJsonAutoImports": "on",'
+  echo '    "files.exclude": { "**/node_modules": true, "**/.git": true },'
+  echo '    "search.exclude": { "**/node_modules": true, "**/dist": true }'
+  echo "  }"
+  echo "}"
+} > "$TMP"
+mv "$TMP" "$OUT"
+echo "✓ regenerated $OUT ($(grep -c '\"path\"' "$OUT") repos)"

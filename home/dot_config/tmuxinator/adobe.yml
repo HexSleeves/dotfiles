@@ -1,12 +1,14 @@
 name: adobe
-root: ~/Projects/adobe/protopack
+root: ~/Projects/adobe
 windows:
-  - dev:
+  - overview:
       layout: main-vertical
+      panes:
+        - |
+          echo "Adobe repos:" && for d in ~/Projects/adobe/*/; do [ -d "$d/.git" ] && echo "  - $(basename "$d")"; done
+        - lazygit
+  - protopack:
+      root: ~/Projects/adobe/protopack
       panes:
         - pnpm dev:local
         - pnpm test:watch
-        - lazygit
-  - agent:
-      panes:
-        - claude

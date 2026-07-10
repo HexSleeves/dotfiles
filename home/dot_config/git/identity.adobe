@@ -1,0 +1,6 @@
+# Adobe — SSH-signed with id_adobe (account: jlecoq_adobe)
+[user]
+	email = "jlecoq@adobe.com"
+	signingkey = "~/.ssh/id_adobe.pub"
+[gpg]
+	format = ssh

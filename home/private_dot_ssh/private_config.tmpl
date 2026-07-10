@@ -21,7 +21,7 @@ Host *
 
     # --- Connection Multiplexing (reuse connections for speed) ---
     ControlMaster auto
-    ControlPath ~/.ssh/sockets/%r@%h-%p
+    ControlPath ~/.ssh/sockets/%r@%n-%p
     ControlPersist 600
 
     # --- Keep-Alive Settings (prevent timeouts) ---
@@ -69,6 +69,38 @@ Host gist.github.com
     HostName gist.github.com
     User git
     IdentityFile ~/.ssh/id_ed25519
+
+# -----------------------------------------------------------------------------
+# Adobe (work) — swapped in via git insteadOf for github.com:adobe repos
+# -----------------------------------------------------------------------------
+Host github-adobe
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_adobe
+    UseKeychain yes
+    AddKeysToAgent yes
+
+# Per-job GitHub identities
+Host github.com-adobe
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_adobe
+  UseKeychain yes
+  AddKeysToAgent yes
+
+Host protopack-ghec
+  Hostname github.com
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile /Users/lecoqjacob/.ssh/github-com/id_rsa
+  StrictHostKeyChecking accept-new
+
+Host github.com-liatrio
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519_liatrio
+  UseKeychain yes
+  AddKeysToAgent yes
 
 # -----------------------------------------------------------------------------
 # GitLab (if needed, uncomment and configure)

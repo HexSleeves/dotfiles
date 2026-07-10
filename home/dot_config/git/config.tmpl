@@ -6,8 +6,6 @@
 	signingkey = {{ .signingkey | quote }}
 
 [include]
-	path = ~/.config/git/config.local
-[include]
 	path = "~/.config/git/themes.gitconfig"
 
 [includeIf "gitdir:~/Developer/personal/"]
@@ -22,6 +20,8 @@
 	path = ~/.config/git/identity.bayer
 [includeIf "gitdir/i:~/Work/liatrio/"]
 	path = ~/.config/git/identity.liatrio
+[includeIf "gitdir:~/Projects/adobe/"]
+	path = ~/.config/git/identity.adobe
 
 [core]
 	editor = nvim
@@ -206,6 +206,30 @@
 	# Show current branch
 	current = rev-parse --abbrev-ref HEAD
 
+	# --- consolidated from former config.local ---
+	a = commit --amend
+	an = commit --amend --no-edit
+	cam = commit -am
+	cm = commit -m
+	cob = checkout -b
+	discard = reset HEAD --hard
+	discardchunk = checkout -p
+	fap = fetch --all --prune
+	ol = "log --all --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+	others = "ls-files --others --ignored --exclude-from=.gitignore"
+	pr = "!f() { git fetch --force origin pull/$1/head:pr-$1; }; f"
+	review = "!f() { git log -p --reverse \"$@\" origin/master...HEAD; }; f"
+	rmuntracked = clean -df
+	root = rev-parse --show-toplevel
+	s = status
+	searchfiles = "log --name-status --source --all -S"
+	searchtext = "!f() { git grep \"$*\" $(git rev-list --all); }; f"
+	uncommit = reset --soft HEAD^
+	wip = "!f() { git add . && git commit -m 'Work in progress'; }; f"
+	allfiles = "!f() { git log --name-only --diff-filter=A --pretty=format: | sort -u; }; f"
+	cfg = config --list
+	changedfiles = diff-tree --no-commit-id -r --name-only
+
 [help]
 	autocorrect = 1
 
@@ -253,3 +277,22 @@
 [credential "https://dev.azure.com"]
 	useHttpPath = true
 {{- end }}
+
+# --- Git LFS (from former config.local) ---
+[filter "lfs"]
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+
+# --- Per-org SSH key auto-routing: Adobe orgs use the id_adobe key via github.com-adobe ---
+[url "git@github.com-adobe:adobe/"]
+	insteadOf = git@github.com:adobe/
+[url "git@github.com-adobe:Adobe-Prototype/"]
+	insteadOf = git@github.com:Adobe-Prototype/
+[url "git@github.com-adobe:Adobe-DesignTechnology/"]
+	insteadOf = git@github.com:Adobe-DesignTechnology/
+
+# --- SSH commit-signature verification ---
+[gpg "ssh"]
+	allowedSignersFile = ~/.config/git/allowed_signers

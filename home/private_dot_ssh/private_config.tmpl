@@ -178,9 +178,9 @@ Host safe-tide
   IdentityFile ~/.ssh/id_ed25519
   IdentitiesOnly yes
 
-Host *
+# Host *
 {{- if eq .chezmoi.os "darwin" }}
-  IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+#   IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
 {{- else if eq .chezmoi.os "linux" }}
-  IdentityAgent ~/.1password/agent.sock
+#   IdentityAgent ~/.1password/agent.sock
 {{- end }}

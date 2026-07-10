@@ -103,6 +103,15 @@ Host github.com-liatrio
   AddKeysToAgent yes
 
 # -----------------------------------------------------------------------------
+# Adobe Artifactory
+# -----------------------------------------------------------------------------
+Host artifactory.corp.adobe.com
+    HostName artifactory.corp.adobe.com
+    User jlecoq
+    IdentityFile ~/.ssh/id_artifactory
+    IdentitiesOnly yes
+
+# -----------------------------------------------------------------------------
 # GitLab (if needed, uncomment and configure)
 # -----------------------------------------------------------------------------
 # Host gitlab.com
@@ -156,7 +165,7 @@ Host localhost 127.0.0.1
 # - ControlMaster: Multiplexes connections for faster subsequent connections
 # - ControlPersist: Keeps master connection alive for 10 minutes (600 seconds)
 # - ServerAliveInterval: Sends keep-alive every 60 seconds
-# - IdentitiesOnly: Only use specified keys (prevents trying all keys)
+# - IdentitiesOnly: Only use specified keys (prevents trying all keys)\
 # - Compression: Helps on slow connections, negligible impact on fast ones
 #
 # Required: Create the sockets directory:

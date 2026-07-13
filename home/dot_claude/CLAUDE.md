@@ -16,7 +16,7 @@ Effort rules: Fable runs on `high`. Do not reach for `xhigh` (token-hungry) or `
 | Codebase analysis, broad search, "where is X", reading many files | **Haiku** (Sonnet if it needs reasoning) via `Explore`/subagent | Context-polluting and cheap to do elsewhere; return conclusions, not file dumps |
 | Computer use, browser, screenshots, log/output scraping | **Haiku/Sonnet** subagent (web browsing still goes through `/browse`) | Inherently token-hungry; do it out-of-band and report back |
 | Bulk mechanical edits, classification, transforms, verification runs | **Haiku** (low/medium effort) | No reasoning needed; fast and cheap |
-| Well-specified implementation, second opinions, adversarial review | **Codex / GPT-5.5** (`codex exec`, `/codex`) | Extremely steerable; Fable writes the spec and reviews the output |
+| Well-specified implementation, second opinions, adversarial review | **Codex / gpt-5.6-sol** (`codex exec`, `/codex`) | Extremely steerable; Fable writes the spec and reviews the output |
 | Genuinely hard architecture / subtle root-cause debugging, or Fable stuck after ~2 tries | **Opus** (high, escalate only) | Deepest reasoning, but token-expensive; never the default |
 
 Pass the model explicitly when spawning: `Agent(..., model: "haiku")`, or in `Workflow`: `agent(prompt, { model: "haiku", effort: "low" })`. Subagents inherit the main-loop model (Fable) unless their agent definition pins one or you override, so a token-hungry job with no override defeats the purpose.
@@ -25,7 +25,7 @@ Pass the model explicitly when spawning: `Agent(..., model: "haiku")`, or in `Wo
 
 Anything that would flood the main context with raw material (large file reads, search sweeps, computer/browser use, log analysis) goes to a Haiku or Sonnet subagent that returns only the distilled answer. Fable sees the conclusion, never the dump. That is where the token savings and the no-rate-limit workflow come from: expensive tokens get spent on a cheap model, and Fable stays fast.
 
-### Codex (GPT-5.5) as an implementation fallback
+### Codex (GPT-5.6) as an implementation fallback
 
 Codex is installed (`codex exec` for implementation, `/codex` skill for review/challenge/consult). It is highly steerable, so output quality tracks spec quality. To steer it well:
 
@@ -35,6 +35,16 @@ Codex is installed (`codex exec` for implementation, `/codex` skill for review/c
 - Use `/codex` in challenge/review mode for a genuinely independent second opinion on Fable's own work.
 
 Good Codex jobs: self-contained functions/modules from a clear spec, mechanical refactors across many files, boilerplate, test scaffolding. Bad Codex jobs: fuzzy design decisions, anything where requirements aren't nailed down yet.
+
+#### Model, effort, and burn rules (sol / terra / luna)
+
+5.6 runs *long* — one message can burn far more than 5.5 did, and it's unpredictable. These rules exist to get more done per 5-hour window, not to cap intelligence.
+
+- **Model selection.** Default to **`gpt-5.6-terra`** for the vast majority of work — `terra high` on the $200 tier, `terra low` otherwise; `terra medium` is a solid pick for quick reviews/feedback and for maximizing usage. Reach for **`gpt-5.6-sol`** when the job is **high-level reasoning, planning, or reviewing** — the harder-thinking calls where its extra depth pays off. **`luna`** is not meant to be hand-selected — it's a tool for code and for sol to spawn as a subagent; leave it to auto-routing. All three beat Sonnet/Opus on intelligence-per-cost.
+- **Effort.** Default **medium or high**. `xhigh` is capable but rarely needed, even when orchestrating subagents. Never use **Ultra** — it is not a reasoning level despite the UI; current harness bugs make it spawn far too many subagents at far too high reasoning. Avoid until fixed.
+- **Fast mode: off for now.** It costs **2.5×** credit. 5.6 already runs much longer than 5.5, so a single fast-mode message can eat ~40% of a 5-hour window. Not worth the unpredictability right now.
+- **Subagents.** `gpt-5.6-terra` ALWAYS spawns subagents at the **same model and reasoning level as the parent** (this is why Ultra explodes). So: keep parent reasoning modest when subagents are likely (`high` is fine, `low`/`medium` great), and keep `AGENTS.md` instructing it to **only spawn subagents when asked** to curb its eagerness.
+- **Prompt with explicit stop points.** 5.6 will go and go — end-to-end is a feature, but it overshoots. Give clear halts: "write the plan, then stop for feedback"; "address the first round of review comments, then stop."
 
 ### Rules of thumb
 

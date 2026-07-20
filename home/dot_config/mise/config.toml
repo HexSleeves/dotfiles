@@ -6,6 +6,7 @@ go             = "latest"
 lua            = "latest"
 neovim         = "nightly"
 node           = "lts"
+"npm:@opencode-ai/cli" = { version = "next", npm_args = "--ignore-scripts=false --allow-scripts=@opencode-ai/cli" }
 "npm:pnpm"     = "latest"
 python         = "latest"
 usage          = "latest"

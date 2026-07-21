@@ -89,10 +89,12 @@ Host github.com-adobe
   AddKeysToAgent yes
 
 Host protopack-ghec
-  Hostname github.com
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_adobe
+  IdentitiesOnly yes
   AddKeysToAgent yes
   UseKeychain yes
-  IdentityFile /Users/lecoqjacob/.ssh/github-com/id_rsa
   StrictHostKeyChecking accept-new
 
 Host github.com-liatrio

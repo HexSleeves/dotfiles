@@ -1,18 +1,14 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugins": ["@warp-dot-dev/opencode-warp"],
-  "permissions": [
-    {
-      "action": "read",
-      "resource": "~/.config/opencode/get-shit-done/*",
-      "effect": "allow",
+  "plugin": ["@warp-dot-dev/opencode-warp"],
+  "permission": {
+    "read": {
+      "~/.config/opencode/get-shit-done/*": "allow",
     },
-    {
-      "action": "external_directory",
-      "resource": "~/.config/opencode/get-shit-done/*",
-      "effect": "allow",
+    "external_directory": {
+      "~/.config/opencode/get-shit-done/*": "allow",
     },
-  ],
+  },
   "default_agent": "build",
   "mcp": {
     "tolaria": {

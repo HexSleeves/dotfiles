@@ -7,7 +7,6 @@ set -euo pipefail
 # gh extension list columns: <name> <repo> <version>
 EXTENSIONS=(
     "davidraviv/gh-clean-branches"
-    "github/gh-copilot"
     "yusukebe/gh-markdown-preview"
     "seachicken/gh-poi"
     "basecamp/gh-signoff"
@@ -26,6 +25,10 @@ for ext in "${EXTENSIONS[@]}"; do
         echo "✓ $ext already installed"
     else
         echo "→ installing $ext"
-        gh extension install "$ext"
+        if gh extension install "$ext"; then
+            echo "✓ $ext installed"
+        else
+            echo "⚠️  failed to install $ext (skipping)"
+        fi
     fi
 done

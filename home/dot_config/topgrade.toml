@@ -15,7 +15,7 @@ pre_sudo = true
 # sudo_command = "sudo"
 
 # Disable specific steps - same options as the command line flag
-disable = ["system", "nix", "chezmoi", "restarts"]
+disable = ["system", "nix", "chezmoi", "restarts", "pnpm"]
 
 # Ignore failures for these steps
 ignore_failures = ["containers"]
@@ -36,10 +36,10 @@ ignore_failures = ["containers"]
 # set_title = true
 
 # Display the time in step titles (default: true)
-# display_time = true
+display_time = true
 
 # Don't ask for confirmations (no default value)
-# assume_yes = true
+assume_yes = true
 
 # Do not ask to retry failed steps (default: false)
 auto_retry = 1
@@ -94,7 +94,7 @@ notify_end = "on_failure"
 # Custom commands
 [commands]
 "mise plugins" = "mise plugins update"
-"uv tools" = "uv tool upgrade --all"
+"uv tools"     = "uv tool upgrade --all"
 
 
 [python]
@@ -272,7 +272,7 @@ arguments = "--rebase --autostash"
 # containers = ["archlinux-latest"]
 [containers]
 # Specify the containers to ignore while updating (Wildcard supported)
-# ignored_containers = ["ghcr.io/rancher-sandbox/rancher-desktop/rdx-proxy:latest", "docker.io*"]
+ignored_containers = ["inkwell-app*", "inkwell-t8-smoke-app*", "goreleaser.ko.local*"]
 # Specify the runtime to use for containers (default: "docker", allowed values: "docker", "podman")
 # runtime = "podman"
 

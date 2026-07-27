@@ -6,20 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a chezmoi-based dotfiles repository for managing personal development environment configuration across Linux systems. The source directory is `home/` (set via `.chezmoiroot`).
 
-## Key Chezmoi Commands
-
-```bash
-# Bootstrap on new machine
-./install.sh
-
-# Common operations
-chezmoi apply                    # Apply changes to home directory
-chezmoi status                   # Show what would change
-chezmoi diff                     # Show diff of pending changes
-chezmoi edit <file>              # Edit a managed file
-chezmoi add <file>               # Add a file to chezmoi management
-chezmoi update                   # Pull and apply latest changes
-```
+Bootstrap on a new machine with `./install.sh`. Everything else is stock chezmoi (`apply`, `status`, `diff`, `edit`, `add`, `update`) — run `chezmoi --help` for those.
 
 ## Architecture
 
@@ -33,18 +20,6 @@ The configuration uses template variables to adapt to different environments:
 
 These variables are defined in `home/.chezmoi.toml.tmpl` and control which configurations and scripts are applied.
 
-### Directory Structure
-
-```
-home/                           # Chezmoi source directory (.chezmoiroot points here)
-├── .chezmoiscripts/linux/      # Installation scripts (run_onchange_* pattern)
-│   └── personal/               # Scripts only for personal machines
-├── bin/                        # Custom shell scripts and installers
-├── private_dot_config/         # XDG config files (~/.config/*)
-├── dot_*                       # Dotfiles that go in $HOME
-└── *.tmpl                      # Templated files with conditional sections
-```
-
 ### Naming Conventions
 
 - `dot_` prefix → `.` in target (e.g., `dot_zshrc` → `.zshrc`)
@@ -56,7 +31,7 @@ home/                           # Chezmoi source directory (.chezmoiroot points 
 
 ### Version Configuration
 
-Language/tool versions are centralized in `home/.chezmoidata.yaml`:
+Language/tool versions are centralized in `home/.chezmoidata.yaml`.
 
 ### External Dependencies
 
@@ -65,39 +40,3 @@ External archives and tools are managed via `home/.chezmoiexternal.toml.tmpl`:
 - Oh-My-Zsh framework
 - Fonts (Monaspace)
 - CLI tools (glow)
-
-### Template Conditionals
-
-Common patterns in `.tmpl` files:
-
-```go
-{{- if .personal }}
-# Personal machine only config
-{{- end }}
-
-{{- if not .headless }}
-# GUI environment config
-{{- end }}
-
-{{- if lookPath "bat" }}
-# Config when bat is installed
-{{- end }}
-```
-
-## Shell Configuration
-
-Shell config is split across several files:
-
-- `dot_zshrc.tmpl` / `dot_bashrc.tmpl` - Shell-specific config
-- `dot_commonrc.tmpl` - Shared configuration for both shells
-- `dot_common_alias.tmpl` - All aliases (git, docker, python, etc.)
-- `dot_functions` - Shell functions
-
-## File Locations After Apply
-
-Chezmoi manages files that deploy to:
-
-- `~/.config/*` - XDG config (git, starship, atuin, ghostty)
-- `~/.local/bin/*` - Custom scripts
-- `~/.ssh/*` - SSH configuration
-- `~/.*rc` - Shell configuration files

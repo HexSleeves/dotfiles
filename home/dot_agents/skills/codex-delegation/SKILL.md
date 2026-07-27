@@ -32,6 +32,9 @@ Bad jobs: fuzzy design decisions, anything where requirements aren't nailed down
 
 All three beat Sonnet/Opus on intelligence-per-cost.
 
+Set the model in `~/.codex/config.toml`, not with `-m` — model pins return 400 under
+ChatGPT-account auth.
+
 ## Effort and burn
 
 5.6 runs *long* — one message can burn far more than 5.5 did, unpredictably. These rules exist to
@@ -45,3 +48,12 @@ get more done per 5-hour window, not to cap intelligence.
 - **Subagents inherit the parent.** `terra` always spawns subagents at the parent's model and
   reasoning level — this is why Ultra explodes. Keep parent reasoning modest when subagents are
   likely (`high` is fine, `low`/`medium` better).
+
+## Driving `codex exec` from a script
+
+Read [CODEX-INVOCATION.md](CODEX-INVOCATION.md) before writing any Bash that shells out to
+`codex exec`. It's the invocation contract: stdin-file prompts (an argv prompt hangs forever under
+a non-TTY harness), capture-then-parse instead of piping the stream, fresh output path per round,
+resume by explicit thread id, and re-forcing `sandbox_mode` on resume — `resume` rejects `-s`, so a
+review session can silently start writing files. Every trap in that file fails in a way that looks
+exactly like success, which is why guessing at the invocation is expensive.

@@ -29,3 +29,7 @@ Load the `codex-delegation` skill for model selection, effort, and how to write 
 - `rtk` proxies dev commands for token savings and is applied automatically by a PreToolUse hook,
   so ordinary commands need no prefix. Call it directly only for its own meta commands:
   `rtk gain` (savings), `rtk gain --history`, `rtk discover`, `rtk proxy <cmd>` (bypass filtering).
+
+## Pull Request
+
+- When creating pull request, never create draft pull request unless explicitly told so. All pullrequest should be live.
